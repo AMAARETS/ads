@@ -140,15 +140,7 @@
   // --- HTML Templates ---
   const bannerHtml = `
     <div id="ph-main-banner" class="ph-banner">
-      <button id="ph-contact-btn" class="ph-button">פרסמו אצלנו</button>
 
-      <!-- NEW: Scrolling Ticker in the middle -->
-      <div class="ph-ticker-wrap">
-          <div class="ph-ticker-text">
-              רוצים להגיע לאלפי לקוחות פוטנציאליים? פרסום ממוקד באתר שלנו הוא הדרך המהירה והיעילה ביותר להזניק את העסק שלכם קדימה.
-          </div>
-      </div>
-      
       <!-- Static content on the right -->
       <div class="ph-static-content">
         <div class="ph-text">
@@ -161,6 +153,16 @@
         </div>
         <div class="ph-icon">✨</div>
       </div>
+
+      <!-- NEW: Scrolling Ticker in the middle -->
+      <div class="ph-ticker-wrap">
+          <div class="ph-ticker-text">
+              רוצים להגיע לאלפי לקוחות פוטנציאליים? פרסום ממוקד באתר שלנו הוא הדרך המהירה והיעילה ביותר להזניק את העסק שלכם קדימה.
+          </div>
+      </div>
+
+      <button id="ph-contact-btn" class="ph-button">פרסמו אצלנו</button>
+      
     </div>
   `;
 
