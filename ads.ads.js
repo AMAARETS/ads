@@ -2,8 +2,8 @@
  * promote-here.js
  *
  * A self-contained script to display a highly dynamic "Advertise with Us" slim banner,
- * featuring a scrolling text ticker and animated elements.
- * Version: 4.0 (Ticker implementation)
+ * featuring a SEAMLESS scrolling text ticker and animated elements.
+ * Version: 5.0 (Seamless Ticker Loop)
  */
 
 (function() {
@@ -16,7 +16,7 @@
     .ph-banner {
       display: flex;
       align-items: center;
-      justify-content: space-between; /* Key for the new layout */
+      justify-content: space-between;
       position: fixed;
       bottom: 0;
       left: 0;
@@ -34,58 +34,42 @@
       animation: ph-gradient-animation 18s ease infinite, ph-slide-in-up 0.8s 0.5s forwards cubic-bezier(0.165, 0.84, 0.44, 1);
     }
     
-    /* Static content on the right */
+    /* Static content on the LEFT */
     .ph-static-content {
         display: flex;
         align-items: center;
-        flex-shrink: 0; /* Prevent from shrinking */
+        flex-shrink: 0;
     }
-    .ph-icon {
-      font-size: 24px;
-      margin-left: 15px;
-    }
-    .ph-text h3 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 700;
-      white-space: nowrap; /* Prevent title from wrapping */
-    }
-    .ph-rotating-text-wrapper {
-        font-size: 14px;
-        opacity: 0.8;
-        height: 18px;
-        position: relative;
-        overflow: hidden;
-    }
-    .ph-text-item {
-        position: absolute;
-        width: 100%;
-        opacity: 0;
-        transform: translateY(100%);
-        transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-    }
+    .ph-icon { font-size: 24px; margin-left: 15px; }
+    .ph-text h3 { margin: 0; font-size: 16px; font-weight: 700; white-space: nowrap; }
+    .ph-rotating-text-wrapper { font-size: 14px; opacity: 0.8; height: 18px; position: relative; overflow: hidden; }
+    .ph-text-item { position: absolute; width: 100%; opacity: 0; transform: translateY(100%); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
     .ph-text-item.ph-active { opacity: 1; transform: translateY(0); }
     .ph-text-item.ph-exit { transform: translateY(-100%); }
 
-    /* --- NEW: Scrolling Ticker Styles --- */
+    /* --- ENHANCED: Seamless Scrolling Ticker Styles --- */
     .ph-ticker-wrap {
-        flex-grow: 1; /* Takes up the available middle space */
+        flex-grow: 1;
         overflow: hidden;
-        position: relative;
-        height: 100%;
-        margin: 0 25px; /* Spacing from other elements */
+        margin: 0 25px;
         display: flex;
-        align-items: center;
     }
-    .ph-ticker-text {
-        position: absolute;
-        white-space: nowrap; /* CRITICAL for single line scrolling */
+    .ph-ticker-track {
+        display: flex; /* Aligns the two text items side-by-side */
+        width: fit-content; /* Let the content define the width */
+        animation: ph-scroll-text 30s linear infinite;
+    }
+    .ph-ticker-track:hover {
+        animation-play-state: paused; /* Pause on hover for readability */
+    }
+    .ph-ticker-item {
+        white-space: nowrap;
         font-size: 15px;
         font-weight: 500;
-        animation: ph-scroll-text 25s linear infinite;
+        padding-right: 50px; /* Adds a nice gap between the repeated sentences */
     }
 
-    /* Button on the left */
+    /* Button on the RIGHT */
     .ph-button {
       padding: 8px 20px;
       border: 1.5px solid white;
@@ -95,7 +79,7 @@
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      flex-shrink: 0; /* Prevent from shrinking */
+      flex-shrink: 0;
       transition: all 0.3s ease;
       animation: ph-button-pulse 3s infinite;
     }
@@ -131,18 +115,20 @@
     @keyframes ph-slide-in-up { from { bottom: -100px; } to { bottom: 0; } }
     @keyframes ph-gradient-animation { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
     @keyframes ph-button-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+    
+    /* MODIFIED Animation for seamless loop */
     @keyframes ph-scroll-text {
-        from { transform: translateX(100%); }
-        to { transform: translateX(-100%); }
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); } /* Move exactly the width of one item */
     }
   `;
 
   // --- HTML Templates ---
   const bannerHtml = `
     <div id="ph-main-banner" class="ph-banner">
-
-      <!-- Static content on the right -->
+      <!-- Static content on the LEFT -->
       <div class="ph-static-content">
+        <div class="ph-icon">✨</div>
         <div class="ph-text">
           <h3>העסק שלך במרכז הבמה</h3>
           <div class="ph-rotating-text-wrapper">
@@ -151,19 +137,22 @@
              <span class="ph-text-item">מיתוג חזק ומוביל בתחום</span>
           </div>
         </div>
-        <div class="ph-icon">✨</div>
       </div>
-
-      <!-- NEW: Scrolling Ticker in the middle -->
+      
+      <!-- Seamless Scrolling Ticker in the middle -->
       <div class="ph-ticker-wrap">
-          <div class="ph-ticker-text">
-              רוצים להגיע לאלפי לקוחות פוטנציאליים? פרסום ממוקד באתר שלנו הוא הדרך המהירה והיעילה ביותר להזניק את העסק שלכם קדימה.
+          <div class="ph-ticker-track">
+              <span class="ph-ticker-item">
+                  רוצים להגיע לאלפי לקוחות פוטנציאליים? פרסום ממוקד באתר שלנו הוא הדרך המהירה והיעילה ביותר להזניק את העסק שלכם קדימה.
+              </span>
+              <span class="ph-ticker-item">
+                  רוצים להגיע לאלפי לקוחות פוטנציאליים? פרסום ממוקד באתר שלנו הוא הדרך המהירה והיעילה ביותר להזניק את העסק שלכם קדימה.
+              </span>
           </div>
       </div>
-
-      <button id="ph-contact-btn" class="ph-button">פרסמו אצלנו</button>
-
       
+      <!-- Button on the RIGHT -->
+      <button id="ph-contact-btn" class="ph-button">פרסמו אצלנו</button>
     </div>
   `;
 
@@ -185,8 +174,7 @@
     </div>
   `;
     
-  // --- JavaScript Logic (Mostly Unchanged) ---
-
+  // --- JavaScript Logic (Unchanged) ---
   function init() {
     const adContainer = document.getElementById('ad-placement-container');
     if (!adContainer) {
@@ -197,9 +185,7 @@
     styleTag.innerHTML = styles;
     document.head.appendChild(styleTag);
     adContainer.innerHTML = bannerHtml + modalHtml;
-    setTimeout(() => {
-        document.getElementById('ph-main-banner').classList.add('ph-visible');
-    }, 500);
+    setTimeout(() => document.getElementById('ph-main-banner').classList.add('ph-visible'), 500);
     bindEvents();
     startTextRotation();
   }
