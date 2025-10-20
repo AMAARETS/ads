@@ -2,19 +2,20 @@
  * promote-here.js
  *
  * A self-contained script to display a highly dynamic "Advertise with Us" slim banner,
- * featuring a truly SEAMLESS RTL scrolling text ticker and animated elements.
- * Version: 6.0 (True Seamless RTL Ticker)
+ * featuring a truly SEAMLESS RTL scrolling text ticker and proper body spacing.
+ * Version: 7.0 (Final Seamless Ticker & Body Padding Fix)
  */
 
 (function() {
   // --- Configuration ---
   const FORM_SUBMIT_URL = 'https://formsubmit.co/ajax/click.go.script@gmail.com';
+  const BANNER_HEIGHT = '55px'; // Define banner height as a constant for easy updates
 
   // --- Styles (CSS) ---
   const styles = `
     /* Main Banner Styles - Slim, Fixed, with Ticker */
     .ph-banner {
-      direction: rtl; /* Ensure Right-to-Left context for the entire banner */
+      direction: rtl; /* Ensure Right-to-Left context */
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -22,7 +23,7 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 55px;
+      height: ${BANNER_HEIGHT};
       padding: 0 20px;
       box-sizing: border-box;
       background: linear-gradient(270deg, #1d2b64, #3a506b, #134e5e, #71b280);
@@ -35,7 +36,7 @@
       animation: ph-gradient-animation 18s ease infinite, ph-slide-in-up 0.8s 0.5s forwards cubic-bezier(0.165, 0.84, 0.44, 1);
     }
     
-    /* Static content on the LEFT (visually right in RTL) */
+    /* Static content on the right */
     .ph-static-content {
         display: flex;
         align-items: center;
@@ -48,29 +49,30 @@
     .ph-text-item.ph-active { opacity: 1; transform: translateY(0); }
     .ph-text-item.ph-exit { transform: translateY(-100%); }
 
-    /* --- ENHANCED: True Seamless RTL Ticker --- */
+    /* --- FINAL: True Seamless Scrolling Ticker --- */
     .ph-ticker-wrap {
         flex-grow: 1;
         overflow: hidden;
         margin: 0 25px;
-        position: relative; /* Establishes a positioning context for the text */
-        height: 100%;
-        display: flex;
-        align-items: center;
+        mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent); /* Fades edges for smoother entry/exit */
     }
-    .ph-ticker-text {
-        position: absolute;
-        white-space: nowrap; /* Critical for a single scrolling line */
+    .ph-ticker-track {
+        display: flex;
+        width: fit-content;
+        will-change: transform; /* Performance optimization */
+        animation: ph-scroll-rtl 30s linear infinite;
+    }
+    .ph-ticker-wrap:hover .ph-ticker-track {
+        animation-play-state: paused;
+    }
+    .ph-ticker-item {
+        white-space: nowrap;
         font-size: 15px;
         font-weight: 500;
-        /* Start the animation from outside the right edge */
-        animation: ph-scroll-rtl 25s linear infinite;
-    }
-    .ph-ticker-wrap:hover .ph-ticker-text {
-        animation-play-state: paused; /* Pause on hover */
+        padding-left: 50px; /* Gap between repeated sentences */
     }
 
-    /* Button on the RIGHT (visually left in RTL) */
+    /* Button on the left */
     .ph-button {
       padding: 8px 20px;
       border: 1.5px solid white;
@@ -91,12 +93,12 @@
       animation-play-state: paused;
     }
 
-    /* Modal styles remain the same */
+    /* Modal styles */
     .ph-modal-overlay { direction: rtl; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 9998; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
     .ph-modal-overlay.ph-visible { display: flex; opacity: 1; }
     .ph-modal-content { position: relative; background-color: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     .ph-modal-overlay.ph-visible .ph-modal-content { transform: scale(1); }
-    .ph-modal-close { position: absolute; top: 15px; left: 15px; /* Swapped for RTL */ background: none; border: none; font-size: 28px; color: #aaa; cursor: pointer; transition: transform 0.2s, color 0.2s; }
+    .ph-modal-close { position: absolute; top: 15px; left: 15px; background: none; border: none; font-size: 28px; color: #aaa; cursor: pointer; transition: transform 0.2s, color 0.2s; }
     .ph-modal-close:hover { color: #333; transform: rotate(90deg); }
     .ph-modal-content h2 { text-align: center; margin-top: 0; margin-bottom: 25px; color: #333; font-size: 24px; }
     .ph-form-group { margin-bottom: 18px; }
@@ -118,27 +120,32 @@
     @keyframes ph-button-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
     
     @keyframes ph-scroll-rtl {
-      from { transform: translateX(100%); }
-      to { transform: translateX(-100%); }
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
     }
   `;
 
   // --- HTML Templates ---
   const bannerHtml = `
     <div id="ph-main-banner" class="ph-banner">
-      <!-- Button on the RIGHT (visually left in RTL) -->
+      <!-- Button on the right (visually left in RTL) -->
       <button id="ph-contact-btn" class="ph-button">פרסמו אצלנו</button>
 
       <!-- Seamless Scrolling Ticker in the middle -->
       <div class="ph-ticker-wrap">
-          <div class="ph-ticker-text">
-              רוצים להגיע לאלפי לקוחות פוטנציאליים? פרסום ממוקד באתר שלנו הוא הדרך המהירה והיעילה ביותר להזניק את העסק שלכם קדימה. &nbsp; ● &nbsp; 
-              רוצים להגיע לאלפי לקוחות פוטנציאליים? פרסום ממוקד באתר שלנו הוא הדרך המהירה והיעילה ביותר להזניק את העסק שלכם קדימה. &nbsp; ● &nbsp; 
+          <div class="ph-ticker-track">
+              <span class="ph-ticker-item">
+                  רוצים להגיע לאלפי לקוחות פוטנציאליים? פרסום ממוקד באתר שלנו הוא הדרך המהירה והיעילה ביותר להזניק את העסק שלכם קדימה.
+              </span>
+              <span class="ph-ticker-item" aria-hidden="true">
+                  רוצים להגיע לאלפי לקוחות פוטנציאליים? פרסום ממוקד באתר שלנו הוא הדרך המהירה והיעילה ביותר להזניק את העסק שלכם קדימה.
+              </span>
           </div>
       </div>
       
-      <!-- Static content on the LEFT (visually right in RTL) -->
+      <!-- Static content on the left (visually right in RTL) -->
       <div class="ph-static-content">
+        <div class="ph-icon">✨</div>
         <div class="ph-text">
           <h3>העסק שלך במרכז הבמה</h3>
           <div class="ph-rotating-text-wrapper">
@@ -147,12 +154,10 @@
              <span class="ph-text-item">מיתוג חזק ומוביל בתחום</span>
           </div>
         </div>
-        <div class="ph-icon">✨</div>
       </div>
     </div>
   `;
 
-  // --- Modal HTML (Unchanged) ---
   const modalHtml = `
     <div id="ph-modal" class="ph-modal-overlay">
       <div class="ph-modal-content">
@@ -170,13 +175,17 @@
     </div>
   `;
     
-  // --- JavaScript Logic (Unchanged) ---
+  // --- JavaScript Logic ---
   function init() {
     const adContainer = document.getElementById('ad-placement-container');
     if (!adContainer) {
       console.error('Promotion module: Container "ad-placement-container" not found.');
       return;
     }
+
+    // *** FIX: Add padding to the body to make space for the fixed banner ***
+    document.body.style.paddingBottom = BANNER_HEIGHT;
+
     const styleTag = document.createElement('style');
     styleTag.innerHTML = styles;
     document.head.appendChild(styleTag);
