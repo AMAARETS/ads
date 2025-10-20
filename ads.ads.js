@@ -57,7 +57,7 @@
     .ph-ticker-track {
         display: flex; /* Aligns the two text items side-by-side */
         width: fit-content; /* Let the content define the width */
-        animation: ph-scroll-text 30s linear infinite;
+        animation: ph-scroll-text 5s linear infinite;
     }
     .ph-ticker-track:hover {
         animation-play-state: paused; /* Pause on hover for readability */
