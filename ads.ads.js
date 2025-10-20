@@ -181,6 +181,7 @@
       console.error('Promotion module: Container "ad-placement-container" not found.');
       return;
     }
+    document.body.style.paddingBottom = BANNER_HEIGHT;
     const styleTag = document.createElement('style');
     styleTag.innerHTML = styles;
     document.head.appendChild(styleTag);
