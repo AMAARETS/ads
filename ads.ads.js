@@ -2,8 +2,8 @@
  * promote-here.js
  *
  * A self-contained script to display a highly dynamic "Advertise with Us" slim banner,
- * featuring a SEAMLESS scrolling text ticker and animated elements.
- * Version: 5.3 (RTL Robust Seamless Ticker)
+ * featuring a truly SEAMLESS RTL scrolling text ticker and animated elements.
+ * Version: 6.0 (True Seamless RTL Ticker)
  */
 
 (function() {
@@ -14,6 +14,7 @@
   const styles = `
     /* Main Banner Styles - Slim, Fixed, with Ticker */
     .ph-banner {
+      direction: rtl; /* Ensure Right-to-Left context for the entire banner */
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -32,10 +33,9 @@
       overflow: hidden;
       box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
       animation: ph-gradient-animation 18s ease infinite, ph-slide-in-up 0.8s 0.5s forwards cubic-bezier(0.165, 0.84, 0.44, 1);
-      direction: rtl;
     }
     
-    /* Static content */
+    /* Static content on the LEFT (visually right in RTL) */
     .ph-static-content {
         display: flex;
         align-items: center;
@@ -48,44 +48,29 @@
     .ph-text-item.ph-active { opacity: 1; transform: translateY(0); }
     .ph-text-item.ph-exit { transform: translateY(-100%); }
 
-/* --- === תיקון סופי: CSS גמיש ואמין ללולאה חלקה === --- */
-.ph-ticker-wrap {
-    flex-grow: 1;
-    overflow: hidden;
-    margin: 0 25px;
-    display: flex; /* חיוני כדי לשמש כמסכה */
-}
-.ph-ticker-track {
-    display: flex;
-    /* 
-     * התיקון המרכזי (1): 
-     * קובעים שהרצועה תהיה רחבה פי 2 מהמיכל שלה.
-     * זה נותן מקום לשני עותקים של הטקסט, זה לצד זה.
-    */
-    width: 200%;
-    animation: ph-scroll-text 25s linear infinite;
-}
-.ph-ticker-track:hover {
-    animation-play-state: paused;
-}
-.ph-ticker-item {
-    /*
-     * התיקון המרכזי (2):
-     * כל פריט תופס בדיוק 50% מרוחב הרצועה (שהיא 200%).
-     * התוצאה: כל פריט הוא ברוחב 100% של האזור הנראה לעין.
-    */
-    width: 50%; 
-    flex-shrink: 0; /* קריטי: מונע מהפריט להתכווץ */
-    white-space: nowrap; /* מבטיח שהטקסט נשאר בשורה אחת */
-    font-size: 15px;
-    font-weight: 500;
-    /* יוצר את הרווח בין הטקסט החוזר על עצמו */
-    padding-left: 50px; 
-    /* מבטיח שהריפוד לא ישפיע על חישוב הרוחב */
-    box-sizing: border-box; 
-}
+    /* --- ENHANCED: True Seamless RTL Ticker --- */
+    .ph-ticker-wrap {
+        flex-grow: 1;
+        overflow: hidden;
+        margin: 0 25px;
+        position: relative; /* Establishes a positioning context for the text */
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+    .ph-ticker-text {
+        position: absolute;
+        white-space: nowrap; /* Critical for a single scrolling line */
+        font-size: 15px;
+        font-weight: 500;
+        /* Start the animation from outside the right edge */
+        animation: ph-scroll-rtl 25s linear infinite;
+    }
+    .ph-ticker-wrap:hover .ph-ticker-text {
+        animation-play-state: paused; /* Pause on hover */
+    }
 
-    /* Button on the RIGHT */
+    /* Button on the RIGHT (visually left in RTL) */
     .ph-button {
       padding: 8px 20px;
       border: 1.5px solid white;
@@ -106,15 +91,15 @@
       animation-play-state: paused;
     }
 
-    /* Modal styles */
-    .ph-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 9998; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
+    /* Modal styles remain the same */
+    .ph-modal-overlay { direction: rtl; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 9998; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
     .ph-modal-overlay.ph-visible { display: flex; opacity: 1; }
-    .ph-modal-content { direction: rtl; position: relative; background-color: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .ph-modal-content { position: relative; background-color: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     .ph-modal-overlay.ph-visible .ph-modal-content { transform: scale(1); }
-    .ph-modal-close { position: absolute; top: 15px; right: 15px; left: auto; background: none; border: none; font-size: 28px; color: #aaa; cursor: pointer; transition: transform 0.2s, color 0.2s; }
+    .ph-modal-close { position: absolute; top: 15px; left: 15px; /* Swapped for RTL */ background: none; border: none; font-size: 28px; color: #aaa; cursor: pointer; transition: transform 0.2s, color 0.2s; }
     .ph-modal-close:hover { color: #333; transform: rotate(90deg); }
     .ph-modal-content h2 { text-align: center; margin-top: 0; margin-bottom: 25px; color: #333; font-size: 24px; }
-    .ph-form-group { margin-bottom: 18px; text-align: right; }
+    .ph-form-group { margin-bottom: 18px; }
     .ph-form-group label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 500; color: #555; }
     .ph-form-group input, .ph-form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: border-color 0.2s, box-shadow 0.2s; }
     .ph-form-group input:focus, .ph-form-group textarea:focus { outline: none; border-color: #1d2b64; box-shadow: 0 0 0 3px rgba(29, 43, 100, 0.2); }
@@ -132,18 +117,28 @@
     @keyframes ph-gradient-animation { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
     @keyframes ph-button-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
     
-    /* Animation for seamless loop - The track is now 2x the item width, so moving it 50% is perfect */
-    @keyframes ph-scroll-text {
-        from { transform: translateX(0); }
-        to { transform: translateX(-50%); }
+    @keyframes ph-scroll-rtl {
+      from { transform: translateX(100%); }
+      to { transform: translateX(-100%); }
     }
   `;
 
   // --- HTML Templates ---
   const bannerHtml = `
     <div id="ph-main-banner" class="ph-banner">
+      <!-- Button on the RIGHT (visually left in RTL) -->
+      <button id="ph-contact-btn" class="ph-button">פרסמו אצלנו</button>
+
+      <!-- Seamless Scrolling Ticker in the middle -->
+      <div class="ph-ticker-wrap">
+          <div class="ph-ticker-text">
+              רוצים להגיע לאלפי לקוחות פוטנציאליים? פרסום ממוקד באתר שלנו הוא הדרך המהירה והיעילה ביותר להזניק את העסק שלכם קדימה. &nbsp; ● &nbsp; 
+              רוצים להגיע לאלפי לקוחות פוטנציאליים? פרסום ממוקד באתר שלנו הוא הדרך המהירה והיעילה ביותר להזניק את העסק שלכם קדימה. &nbsp; ● &nbsp; 
+          </div>
+      </div>
+      
+      <!-- Static content on the LEFT (visually right in RTL) -->
       <div class="ph-static-content">
-        <div class="ph-icon">✨</div>
         <div class="ph-text">
           <h3>העסק שלך במרכז הבמה</h3>
           <div class="ph-rotating-text-wrapper">
@@ -152,22 +147,12 @@
              <span class="ph-text-item">מיתוג חזק ומוביל בתחום</span>
           </div>
         </div>
+        <div class="ph-icon">✨</div>
       </div>
-      <div class="ph-ticker-wrap">
-          <div class="ph-ticker-track">
-              <span class="ph-ticker-item">
-                  רוצים להגיע לאלפי לקוחות פוטנציאליים? פרסום ממוקד באתר שלנו הוא הדרך המהירה והיעילה ביותר להזניק את העסק שלכם קדימה.
-              </span>
-              <span class="ph-ticker-item">
-                  רוצים להגיע לאלפי לקוחות פוטנציאליים? פרסום ממוקד באתר שלנו הוא הדרך המהירה והיעילה ביותר להזניק את העסק שלכם קדימה.
-              </span>
-          </div>
-      </div>
-      <button id="ph-contact-btn" class="ph-button">פרסמו אצלנו</button>
     </div>
   `;
 
-  // --- Modal HTML ---
+  // --- Modal HTML (Unchanged) ---
   const modalHtml = `
     <div id="ph-modal" class="ph-modal-overlay">
       <div class="ph-modal-content">
@@ -192,6 +177,10 @@
       console.error('Promotion module: Container "ad-placement-container" not found.');
       return;
     }
+
+    // *** FIX: Add padding to the body to make space for the fixed banner ***
+    document.body.style.paddingBottom = BANNER_HEIGHT;
+    
     const styleTag = document.createElement('style');
     styleTag.innerHTML = styles;
     document.head.appendChild(styleTag);
