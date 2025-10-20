@@ -3,7 +3,7 @@
  *
  * A self-contained script to display a highly dynamic "Advertise with Us" slim banner,
  * featuring a SEAMLESS scrolling text ticker and animated elements.
- * Version: 5.0 (Seamless Ticker Loop)
+ * Version: 5.1 (RTL Seamless Ticker Loop)
  */
 
 (function() {
@@ -32,9 +32,10 @@
       overflow: hidden;
       box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
       animation: ph-gradient-animation 18s ease infinite, ph-slide-in-up 0.8s 0.5s forwards cubic-bezier(0.165, 0.84, 0.44, 1);
+      direction: rtl; /* --- שינוי: הוספת כיווניות מימין לשמאל לבאנר הראשי --- */
     }
     
-    /* Static content on the LEFT */
+    /* Static content on the LEFT (visually, but first in DOM for RTL) */
     .ph-static-content {
         display: flex;
         align-items: center;
@@ -66,10 +67,10 @@
         white-space: nowrap;
         font-size: 15px;
         font-weight: 500;
-        padding-right: 50px; /* Adds a nice gap between the repeated sentences */
+        padding-left: 50px; /* --- שינוי: הריווח בצד שמאל כדי ליצור פער נכון ב-RTL --- */
     }
 
-    /* Button on the RIGHT */
+    /* Button on the RIGHT (visually, but last in DOM for RTL) */
     .ph-button {
       padding: 8px 20px;
       border: 1.5px solid white;
@@ -93,12 +94,12 @@
     /* Modal styles remain the same */
     .ph-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 9998; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
     .ph-modal-overlay.ph-visible { display: flex; opacity: 1; }
-    .ph-modal-content { position: relative; background-color: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .ph-modal-content { direction: rtl; position: relative; background-color: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     .ph-modal-overlay.ph-visible .ph-modal-content { transform: scale(1); }
-    .ph-modal-close { position: absolute; top: 15px; left: 15px; background: none; border: none; font-size: 28px; color: #aaa; cursor: pointer; transition: transform 0.2s, color 0.2s; }
+    .ph-modal-close { position: absolute; top: 15px; right: 15px; /* Adjusted for RTL */ left: auto; background: none; border: none; font-size: 28px; color: #aaa; cursor: pointer; transition: transform 0.2s, color 0.2s; }
     .ph-modal-close:hover { color: #333; transform: rotate(90deg); }
     .ph-modal-content h2 { text-align: center; margin-top: 0; margin-bottom: 25px; color: #333; font-size: 24px; }
-    .ph-form-group { margin-bottom: 18px; }
+    .ph-form-group { margin-bottom: 18px; text-align: right; }
     .ph-form-group label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 500; color: #555; }
     .ph-form-group input, .ph-form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: border-color 0.2s, box-shadow 0.2s; }
     .ph-form-group input:focus, .ph-form-group textarea:focus { outline: none; border-color: #1d2b64; box-shadow: 0 0 0 3px rgba(29, 43, 100, 0.2); }
@@ -116,17 +117,17 @@
     @keyframes ph-gradient-animation { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
     @keyframes ph-button-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
     
-    /* MODIFIED Animation for seamless loop */
+    /* MODIFIED Animation for seamless loop - This is already correct for RTL scroll */
     @keyframes ph-scroll-text {
         from { transform: translateX(0); }
-        to { transform: translateX(-50%); } /* Move exactly the width of one item */
+        to { transform: translateX(-50%); } /* Move exactly the width of one item to the left */
     }
   `;
 
   // --- HTML Templates ---
   const bannerHtml = `
     <div id="ph-main-banner" class="ph-banner">
-      <!-- Static content on the LEFT -->
+      <!-- Static content -->
       <div class="ph-static-content">
         <div class="ph-icon">✨</div>
         <div class="ph-text">
@@ -151,12 +152,12 @@
           </div>
       </div>
       
-      <!-- Button on the RIGHT -->
+      <!-- Button -->
       <button id="ph-contact-btn" class="ph-button">פרסמו אצלנו</button>
     </div>
   `;
 
-  // --- Modal HTML (Unchanged) ---
+  // --- Modal HTML (Unchanged logic, minor RTL style tweaks added above) ---
   const modalHtml = `
     <div id="ph-modal" class="ph-modal-overlay">
       <div class="ph-modal-content">
