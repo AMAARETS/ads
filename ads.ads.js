@@ -48,30 +48,42 @@
     .ph-text-item.ph-active { opacity: 1; transform: translateY(0); }
     .ph-text-item.ph-exit { transform: translateY(-100%); }
 
-    /* --- === תיקון סופי: CSS גמיש ואמין ללולאה חלקה === --- */
-    .ph-ticker-wrap {
-        flex-grow: 1;
-        overflow: hidden;
-        margin: 0 25px;
-        display: flex;
-    }
-    .ph-ticker-track {
-        display: flex;
-        /* The track's width will be the sum of its children's widths */
-        animation: ph-scroll-text 25s linear infinite;
-    }
-    .ph-ticker-track:hover {
-        animation-play-state: paused;
-    }
-    .ph-ticker-item {
-        flex-shrink: 0; /* CRITICAL: Prevents the item from shrinking below its content width */
-        white-space: nowrap; /* Ensures the text stays on one line */
-        font-size: 15px;
-        font-weight: 500;
-        padding-left: 50px; /* Creates the gap between the repeated text */
-        box-sizing: content-box; /* Ensures padding adds to the width correctly */
-    }
-    /* --- === סוף התיקון === --- */
+/* --- === תיקון סופי: CSS גמיש ואמין ללולאה חלקה === --- */
+.ph-ticker-wrap {
+    flex-grow: 1;
+    overflow: hidden;
+    margin: 0 25px;
+    display: flex; /* חיוני כדי לשמש כמסכה */
+}
+.ph-ticker-track {
+    display: flex;
+    /* 
+     * התיקון המרכזי (1): 
+     * קובעים שהרצועה תהיה רחבה פי 2 מהמיכל שלה.
+     * זה נותן מקום לשני עותקים של הטקסט, זה לצד זה.
+    */
+    width: 200%;
+    animation: ph-scroll-text 25s linear infinite;
+}
+.ph-ticker-track:hover {
+    animation-play-state: paused;
+}
+.ph-ticker-item {
+    /*
+     * התיקון המרכזי (2):
+     * כל פריט תופס בדיוק 50% מרוחב הרצועה (שהיא 200%).
+     * התוצאה: כל פריט הוא ברוחב 100% של האזור הנראה לעין.
+    */
+    width: 50%; 
+    flex-shrink: 0; /* קריטי: מונע מהפריט להתכווץ */
+    white-space: nowrap; /* מבטיח שהטקסט נשאר בשורה אחת */
+    font-size: 15px;
+    font-weight: 500;
+    /* יוצר את הרווח בין הטקסט החוזר על עצמו */
+    padding-left: 50px; 
+    /* מבטיח שהריפוד לא ישפיע על חישוב הרוחב */
+    box-sizing: border-box; 
+}
 
     /* Button on the RIGHT */
     .ph-button {
