@@ -17,9 +17,6 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      position: fixed;
-      bottom: 0;
-      left: 0;
       width: 100%;
       height: 55px;
       padding: 0 20px;
@@ -181,7 +178,7 @@
       console.error('Promotion module: Container "ad-placement-container" not found.');
       return;
     }
-    document.body.style.paddingBottom = BANNER_HEIGHT;
+    //document.body.style.paddingBottom = BANNER_HEIGHT;
     const styleTag = document.createElement('style');
     styleTag.innerHTML = styles;
     document.head.appendChild(styleTag);
