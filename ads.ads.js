@@ -51,27 +51,19 @@
         margin: 0 25px;
         display: flex;
     }
-
     .ph-ticker-track {
-        display: flex;
-        /* קבע את הרוחב ל-200% כדי להכיל שני פריטים שרוחב כל אחד מהם 100% מהאב */
-        width: 200%; 
+        display: flex; /* Aligns the two text items side-by-side */
+        width: fit-content; /* Let the content define the width */
         animation: ph-scroll-text 20s linear infinite;
     }
-
     .ph-ticker-track:hover {
         animation-play-state: paused; /* Pause on hover for readability */
     }
-
     .ph-ticker-item {
-        /* קבע את רוחב כל פריט ל-50% מרוחב ה-track (כלומר 100% מרוחב ה-wrap) */
-        width: 50%; 
         white-space: nowrap;
         font-size: 15px;
         font-weight: 500;
-        /* מומלץ להשתמש ב-box-sizing כדי שה-padding לא ישפיע על חישוב הרוחב */
-        box-sizing: border-box; 
-        padding-right: 50px; 
+        padding-right: 50px; /* Adds a nice gap between the repeated sentences */
     }
 
     /* Button on the RIGHT */
