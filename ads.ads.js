@@ -3,7 +3,7 @@
  *
  * A self-contained script to display a highly dynamic "Advertise with Us" slim banner,
  * featuring a SEAMLESS scrolling text ticker and animated elements.
- * Version: 5.2 (RTL True Seamless Ticker)
+ * Version: 5.3 (RTL Robust Seamless Ticker)
  */
 
 (function() {
@@ -48,29 +48,28 @@
     .ph-text-item.ph-active { opacity: 1; transform: translateY(0); }
     .ph-text-item.ph-exit { transform: translateY(-100%); }
 
-    /* --- === תיקון: הגדרות CSS מפורשות ללולאה חלקה === --- */
+    /* --- === תיקון סופי: CSS גמיש ואמין ללולאה חלקה === --- */
     .ph-ticker-wrap {
         flex-grow: 1;
         overflow: hidden;
         margin: 0 25px;
-        display: flex; /* Creates a flex formatting context for the track */
+        display: flex;
     }
     .ph-ticker-track {
         display: flex;
-        width: 200%; /* CRITICAL: Makes the track twice the width of its container */
-        animation: ph-scroll-text 25s linear infinite; /* Increased duration for smoother scroll */
+        /* The track's width will be the sum of its children's widths */
+        animation: ph-scroll-text 25s linear infinite;
     }
     .ph-ticker-track:hover {
         animation-play-state: paused;
     }
     .ph-ticker-item {
-        width: 50%; /* CRITICAL: Each item takes up exactly half of the track's width */
-        box-sizing: border-box; /* IMPORTANT: Includes padding in the width calculation */
-        white-space: nowrap;
+        flex-shrink: 0; /* CRITICAL: Prevents the item from shrinking below its content width */
+        white-space: nowrap; /* Ensures the text stays on one line */
         font-size: 15px;
         font-weight: 500;
-        padding-left: 50px; /* Gap between the end of sentence 1 and start of sentence 2 */
-        text-align: right; /* Ensures text inside aligns to the right */
+        padding-left: 50px; /* Creates the gap between the repeated text */
+        box-sizing: content-box; /* Ensures padding adds to the width correctly */
     }
     /* --- === סוף התיקון === --- */
 
@@ -121,17 +120,16 @@
     @keyframes ph-gradient-animation { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
     @keyframes ph-button-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
     
-    /* Animation for seamless loop - This logic is now robust */
+    /* Animation for seamless loop - The track is now 2x the item width, so moving it 50% is perfect */
     @keyframes ph-scroll-text {
         from { transform: translateX(0); }
-        to { transform: translateX(-50%); } /* Move exactly the width of one item */
+        to { transform: translateX(-50%); }
     }
   `;
 
   // --- HTML Templates ---
   const bannerHtml = `
     <div id="ph-main-banner" class="ph-banner">
-      <!-- Static content -->
       <div class="ph-static-content">
         <div class="ph-icon">✨</div>
         <div class="ph-text">
@@ -143,8 +141,6 @@
           </div>
         </div>
       </div>
-      
-      <!-- Seamless Scrolling Ticker in the middle -->
       <div class="ph-ticker-wrap">
           <div class="ph-ticker-track">
               <span class="ph-ticker-item">
@@ -155,8 +151,6 @@
               </span>
           </div>
       </div>
-      
-      <!-- Button -->
       <button id="ph-contact-btn" class="ph-button">פרסמו אצלנו</button>
     </div>
   `;
