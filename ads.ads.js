@@ -3,7 +3,7 @@
  *
  * A self-contained script to display a highly dynamic "Advertise with Us" slim banner,
  * featuring a SEAMLESS scrolling text ticker and animated elements.
- * Version: 5.1 (RTL Seamless Ticker Loop)
+ * Version: 5.2 (RTL True Seamless Ticker)
  */
 
 (function() {
@@ -32,10 +32,10 @@
       overflow: hidden;
       box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
       animation: ph-gradient-animation 18s ease infinite, ph-slide-in-up 0.8s 0.5s forwards cubic-bezier(0.165, 0.84, 0.44, 1);
-      direction: rtl; /* --- שינוי: הוספת כיווניות מימין לשמאל לבאנר הראשי --- */
+      direction: rtl;
     }
     
-    /* Static content on the LEFT (visually, but first in DOM for RTL) */
+    /* Static content */
     .ph-static-content {
         display: flex;
         align-items: center;
@@ -48,29 +48,33 @@
     .ph-text-item.ph-active { opacity: 1; transform: translateY(0); }
     .ph-text-item.ph-exit { transform: translateY(-100%); }
 
-    /* --- ENHANCED: Seamless Scrolling Ticker Styles --- */
+    /* --- === תיקון: הגדרות CSS מפורשות ללולאה חלקה === --- */
     .ph-ticker-wrap {
         flex-grow: 1;
         overflow: hidden;
         margin: 0 25px;
-        display: flex;
+        display: flex; /* Creates a flex formatting context for the track */
     }
     .ph-ticker-track {
-        display: flex; /* Aligns the two text items side-by-side */
-        width: fit-content; /* Let the content define the width */
-        animation: ph-scroll-text 20s linear infinite;
+        display: flex;
+        width: 200%; /* CRITICAL: Makes the track twice the width of its container */
+        animation: ph-scroll-text 25s linear infinite; /* Increased duration for smoother scroll */
     }
     .ph-ticker-track:hover {
-        animation-play-state: paused; /* Pause on hover for readability */
+        animation-play-state: paused;
     }
     .ph-ticker-item {
+        width: 50%; /* CRITICAL: Each item takes up exactly half of the track's width */
+        box-sizing: border-box; /* IMPORTANT: Includes padding in the width calculation */
         white-space: nowrap;
         font-size: 15px;
         font-weight: 500;
-        padding-left: 50px; /* --- שינוי: הריווח בצד שמאל כדי ליצור פער נכון ב-RTL --- */
+        padding-left: 50px; /* Gap between the end of sentence 1 and start of sentence 2 */
+        text-align: right; /* Ensures text inside aligns to the right */
     }
+    /* --- === סוף התיקון === --- */
 
-    /* Button on the RIGHT (visually, but last in DOM for RTL) */
+    /* Button on the RIGHT */
     .ph-button {
       padding: 8px 20px;
       border: 1.5px solid white;
@@ -91,12 +95,12 @@
       animation-play-state: paused;
     }
 
-    /* Modal styles remain the same */
+    /* Modal styles */
     .ph-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 9998; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
     .ph-modal-overlay.ph-visible { display: flex; opacity: 1; }
     .ph-modal-content { direction: rtl; position: relative; background-color: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     .ph-modal-overlay.ph-visible .ph-modal-content { transform: scale(1); }
-    .ph-modal-close { position: absolute; top: 15px; right: 15px; /* Adjusted for RTL */ left: auto; background: none; border: none; font-size: 28px; color: #aaa; cursor: pointer; transition: transform 0.2s, color 0.2s; }
+    .ph-modal-close { position: absolute; top: 15px; right: 15px; left: auto; background: none; border: none; font-size: 28px; color: #aaa; cursor: pointer; transition: transform 0.2s, color 0.2s; }
     .ph-modal-close:hover { color: #333; transform: rotate(90deg); }
     .ph-modal-content h2 { text-align: center; margin-top: 0; margin-bottom: 25px; color: #333; font-size: 24px; }
     .ph-form-group { margin-bottom: 18px; text-align: right; }
@@ -117,10 +121,10 @@
     @keyframes ph-gradient-animation { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
     @keyframes ph-button-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
     
-    /* MODIFIED Animation for seamless loop - This is already correct for RTL scroll */
+    /* Animation for seamless loop - This logic is now robust */
     @keyframes ph-scroll-text {
         from { transform: translateX(0); }
-        to { transform: translateX(-50%); } /* Move exactly the width of one item to the left */
+        to { transform: translateX(-50%); } /* Move exactly the width of one item */
     }
   `;
 
@@ -157,7 +161,7 @@
     </div>
   `;
 
-  // --- Modal HTML (Unchanged logic, minor RTL style tweaks added above) ---
+  // --- Modal HTML ---
   const modalHtml = `
     <div id="ph-modal" class="ph-modal-overlay">
       <div class="ph-modal-content">
