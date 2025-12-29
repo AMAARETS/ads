@@ -78,7 +78,7 @@
     .ph-close-btn {
         position: absolute; /* Floating above content */
         top: 3px;           /* Top corner */
-        left: 5px;          /* Left corner */
+        right: 5px;  
         z-index: 10001;     /* Above the text ticker */
         
         background: rgba(0, 0, 0, 0.3); /* Semi-transparent background for contrast */
