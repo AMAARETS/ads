@@ -4,6 +4,8 @@
  * A slim, fixed banner with a SEAMLESS scrolling text ticker,
  * featuring internal Angular navigation styled as chips, hover pause,
  * and extremely slow scroll speed.
+ * 
+ * MODIFIED: Added local storage check and a delayed close button.
  */
 
 (function() {
@@ -13,7 +15,7 @@
       extension: 'https://chromewebstore.google.com/detail/odiokhddkoempbdcanepmjbichfifggo#utm_source=share_web&utm_medume=baner&utm_id=5',
       site: 'https://thechannel-viewer.clickandgo.cfd/?utm_source=share_web&utm_medume=baner&utm_id=5'
     },
-    scrollDuration: 60 // New, much slower speed: 45 seconds for one full loop
+    scrollDuration: 60 // 60 seconds for one full loop
   };
 
   // --- HTML Content - Rephrased & Designed for Seamless Loop ---
@@ -81,6 +83,33 @@
         margin-left: 15px;
         flex-shrink: 0;
         animation: ph-icon-pulse 3s infinite alternate;
+    }
+
+    /* --- Close Button Style (NEW) --- */
+    .ph-close-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 26px; /* גודל נח ללחיצה */
+        line-height: 1;
+        cursor: pointer;
+        padding: 0;
+        margin-right: 15px; /* מרווח מהקצה השמאלי */
+        flex-shrink: 0;
+        transition: opacity 0.5s ease, transform 0.2s;
+        opacity: 0; /* מוסתר בהתחלה */
+        pointer-events: none; /* לא ניתן ללחוץ כשמוסתר */
+    }
+    
+    .ph-close-btn:hover {
+        opacity: 0.8 !important;
+        transform: scale(1.1);
+    }
+    
+    /* Utility class to make it visible */
+    .ph-close-btn.show-close {
+        opacity: 1;
+        pointer-events: auto;
     }
 
     /* --- Ticker Core Styles --- */
@@ -192,6 +221,7 @@
     @media (max-width: 768px) {
         .ph-banner { height: auto; min-height: 55px; align-items: flex-start; padding: 8px 15px; }
         .ph-static-icon { display: none; }
+        .ph-close-btn { margin-right: 0; margin-left: 15px; } /* מיקום האיקס בצד ימין למובייל, ליד האייקון הסטטי (אם היה) */
         .ph-ticker-wrap { height: auto; }
         .ph-ticker-track { flex-direction: column; animation: none; width: 100%; align-items: flex-start;}
         .ph-ticker-item { white-space: normal; padding-left: 0; margin-bottom: 10px; flex-direction: column; align-items: flex-start; gap: 5px;}
@@ -213,6 +243,9 @@
               ${createTickerContent()} <!-- Repeat content for seamless loop -->
           </div>
       </div>
+      
+      <!-- NEW: Close Button (X) -->
+      <button id="ph-close-btn" class="ph-close-btn" title="סגור את הבאנר">&#x2715;</button> 
     </div>
 
     <!-- Toast -->
@@ -223,6 +256,14 @@
 
   // --- Logic ---
   function init() {
+    // ********************************************
+    // 0. NEW: Check Dismissal Flag in Local Storage
+    // ********************************************
+    if (localStorage.getItem('share1') === 'dismissed') {
+        console.log('Banner Script: Dismissed flag found in local storage. Not displaying banner.');
+        return; // Exit the function, banner will not be displayed
+    }
+      
     const adContainer = document.getElementById('ad-placement-container');
     if (!adContainer) {
       console.warn('Banner Script: Container not found.');
@@ -240,6 +281,21 @@
     // 3. Bind Events
     bindCopyEvents();
     bindNavigationEvents();
+    bindCloseEvent(); // NEW: Bind the close logic
+
+    // ********************************************
+    // 4. NEW: Delayed Close Button Visibility
+    // ********************************************
+    const closeBtn = document.getElementById('ph-close-btn');
+    if (closeBtn) {
+        // המרת משך האנימציה (שניות) לאלפיות שניה
+        const delayInMs = CONFIG.scrollDuration * 1000;
+        
+        setTimeout(() => {
+            closeBtn.classList.add('show-close');
+            console.log('Banner Script: Close button is now visible after one loop.');
+        }, delayInMs);
+    }
   }
 
   // Handle Internal Angular Navigation
@@ -263,6 +319,33 @@
             }
         });
     });
+  }
+  
+  // ********************************************
+  // NEW: Handle Close Button Click
+  // ********************************************
+  function bindCloseEvent() {
+    const closeBtn = document.getElementById('ph-close-btn');
+    const banner = document.getElementById('ph-main-banner');
+    
+    if (closeBtn && banner) {
+      closeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // 1. Set dismissal flag in local storage
+        localStorage.setItem('share1', 'dismissed');
+        
+        // 2. Remove the banner from the DOM
+        banner.remove();
+        
+        // Optional: Remove toast too
+        const toast = document.getElementById('ph-toast');
+        if (toast) toast.remove();
+        
+        console.log('Banner Script: Banner dismissed and "share1" flag set in local storage.');
+      });
+    }
   }
 
   // Handle Copy to Clipboard
