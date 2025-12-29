@@ -1,5 +1,5 @@
 /**
- * promote-banner-ticker-v8.js
+ * promote-banner-ticker-v9.js
  *
  * A slim, fixed banner with a SEAMLESS scrolling text ticker.
  * 
@@ -7,7 +7,8 @@
  * - Internal Angular navigation chips.
  * - LocalStorage "share1" check to hide banner permanently.
  * - Tiny "X" button (10px) in top-left corner (Overlay).
- * - "X" appears only after 1 full animation loop.
+ * - "X" is visible immediately but disabled (Gray).
+ * - "X" becomes clickable only after the animation loop (countdown).
  */
 
 (function() {
@@ -17,7 +18,7 @@
       extension: 'https://chromewebstore.google.com/detail/odiokhddkoempbdcanepmjbichfifggo#utm_source=share_web&utm_medume=baner&utm_id=5',
       site: 'https://thechannel-viewer.clickandgo.cfd/?utm_source=share_web&utm_medume=baner&utm_id=5'
     },
-    // זמן סיבוב אנימציה בשניות (אחרי זמן זה יופיע האיקס)
+    // זמן סיבוב אנימציה בשניות
     scrollDuration: 60 
   };
 
@@ -54,7 +55,6 @@
   const styles = `
     /* --- Main Banner and Layout --- */
     .ph-banner {
-      /* Relative positioning is crucial so the absolute X button is relative to the banner */
       position: relative; 
       display: flex;
       align-items: center;
@@ -76,17 +76,17 @@
 
     /* --- Close Button (Tiny Overlay X) --- */
     .ph-close-btn {
-        position: absolute; /* Floating above content */
-        top: 3px;           /* Top corner */
+        position: absolute; 
+        top: 3px;           
         right: 5px;  
-        z-index: 10001;     /* Above the text ticker */
+        z-index: 10001;     
         
-        background: rgba(0, 0, 0, 0.3); /* Semi-transparent background for contrast */
+        background: rgba(0, 0, 0, 0.3);
         border: none;
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.9);
         
-        font-size: 10px;    /* Tiny text size as requested */
-        width: 18px;        /* Small circular area */
+        font-size: 10px;    
+        width: 18px;        
         height: 18px;
         border-radius: 50%;
         
@@ -98,20 +98,45 @@
         line-height: 1;
         
         transition: all 0.3s ease;
-        opacity: 0;         /* Hidden initially */
-        pointer-events: none; /* Not clickable when hidden */
+        opacity: 1;         /* Visible immediately */
     }
 
-    .ph-close-btn:hover {
+    /* Active state (after timeout) */
+    .ph-close-btn:not(.ph-disabled):hover {
         background: rgba(255, 0, 0, 0.6);
         color: white;
         transform: scale(1.1);
     }
-    
-    /* Class to make it appear */
-    .ph-close-btn.show-close {
+
+    /* Disabled State (Gray & Timer) */
+    .ph-close-btn.ph-disabled {
+        background: rgba(100, 100, 100, 0.5); /* Gray background */
+        color: rgba(200, 200, 200, 0.5);       /* Dimmed text */
+        cursor: wait;                          /* Wait cursor */
+    }
+
+    /* Tooltip logic for countdown */
+    .ph-close-btn.ph-disabled::after {
+        content: attr(data-countdown); /* Shows the text from JS */
+        position: absolute;
+        top: 22px; /* Position below the button */
+        right: 0;
+        background: rgba(0, 0, 0, 0.85);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s;
+        pointer-events: none;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    .ph-close-btn.ph-disabled:hover::after {
         opacity: 1;
-        pointer-events: auto;
+        visibility: visible;
     }
 
     /* --- Left Side Static Icon --- */
@@ -236,6 +261,7 @@
   `;
 
   // --- HTML Template ---
+  // Note: Button starts with 'ph-disabled' class
   const bannerHtml = `
     <div id="ph-main-banner" class="ph-banner">
       <!-- Static content on the RIGHT -->
@@ -249,8 +275,8 @@
           </div>
       </div>
       
-      <!-- Tiny Overlay Close Button (Top Left) -->
-      <button id="ph-close-btn" class="ph-close-btn" title="סגור את הבאנר">&#x2715;</button> 
+      <!-- Tiny Overlay Close Button (Top Left) - Starts Disabled -->
+      <button id="ph-close-btn" class="ph-close-btn ph-disabled" data-countdown="מחשב זמן...">&#x2715;</button> 
     </div>
 
     <!-- Toast -->
@@ -261,9 +287,8 @@
 
   // --- Logic ---
   function init() {
-    // 1. Check Local Storage ("share1")
+    // 1. Check Local Storage
     if (localStorage.getItem('share1') === 'dismissed') {
-        // אם המשתמש כבר סגר בעבר, לא מציגים כלום
         return; 
     }
       
@@ -284,14 +309,42 @@
     bindNavigationEvents();
     bindCloseEvent();
 
-    // 4. Delayed Close Button
-    // מציג את האיקס רק לאחר סיום אנימציה אחת (לפי ההגדרה ב-CONFIG)
-    const closeBtn = document.getElementById('ph-close-btn');
-    if (closeBtn) {
-        setTimeout(() => {
-            closeBtn.classList.add('show-close');
-        }, (CONFIG.scrollDuration * 1000) - 13000);
-    }
+    // 4. Handle Timer for Close Button
+    startCloseTimer();
+  }
+
+  // --- Timer Logic ---
+  function startCloseTimer() {
+      const closeBtn = document.getElementById('ph-close-btn');
+      if (!closeBtn) return;
+
+      // חישוב הזמן הכולל בשניות (לפי הנוסחה המקורית: זמן אנימציה פחות 13 שניות, חלקי 1000)
+      let secondsLeft = Math.ceil(((CONFIG.scrollDuration * 1000) - 13000) / 1000);
+      
+      // הגנה למקרה שהזמן יוצא שלילי
+      if (secondsLeft < 0) secondsLeft = 0;
+
+      const updateState = () => {
+          if (secondsLeft > 0) {
+              // עדכון טקסט ה-Tooltip
+              closeBtn.setAttribute('data-countdown', `לחץ בעוד ${secondsLeft} שניות`);
+          } else {
+              // סיום הטיימר
+              clearInterval(timerInterval);
+              closeBtn.classList.remove('ph-disabled'); // הופך ללחיץ
+              closeBtn.removeAttribute('data-countdown'); // מוחק את ה-Tooltip
+              closeBtn.setAttribute('title', 'סגור את הבאנר'); // מחזיר טייטל רגיל
+          }
+      };
+
+      // הרצה ראשונית
+      updateState();
+
+      // הרצת הטיימר
+      const timerInterval = setInterval(() => {
+          secondsLeft--;
+          updateState();
+      }, 1000);
   }
 
   // --- Event Handlers ---
@@ -325,6 +378,11 @@
         e.preventDefault();
         e.stopPropagation();
         
+        // ** חדש: בדיקה אם הכפתור עדיין במצב לא פעיל **
+        if (closeBtn.classList.contains('ph-disabled')) {
+            return; // לא עושה כלום אם עדיין סופר לאחור
+        }
+
         // שמירת הסימון שהמשתמש סגר את הבאנר
         localStorage.setItem('share1', 'dismissed');
         
