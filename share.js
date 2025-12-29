@@ -13,7 +13,7 @@
       extension: 'https://chromewebstore.google.com/detail/odiokhddkoempbdcanepmjbichfifggo#utm_source=share_web&utm_medume=baner&utm_id=5',
       site: 'https://thechannel-viewer.clickandgo.cfd/?utm_source=share_web&utm_medume=baner&utm_id=5'
     },
-    scrollDuration: 45 // New, much slower speed: 45 seconds for one full loop
+    scrollDuration: 60 // New, much slower speed: 45 seconds for one full loop
   };
 
   // --- HTML Content - Rephrased & Designed for Seamless Loop ---
@@ -21,6 +21,7 @@
     // ניסוח מעודכן: שיתוף
     '🎁 נהנים מהצפייה הנוחה? שתפו גם את החברים שלכם! שלחו להם קישור לתוסף: [EXT_LINK] או להתרשמות באתר: [SITE_LINK]',
     // ניסוח מעודכן: עזרה
+    'יש לכם הצעה לשיפור או לתוספת מועילה? [CONTACT_LINK2] כדי שנוכל להוסיף!',
     '🛠️ בעיות בהתחברות לגוגל? אל דאגה! עיינו מיד ב[HELP_LINK] שלנו, או [CONTACT_LINK] אם הבעיה נמשכת.',
     'מצאתם באג? [CONTACT_LINK2] כדי שנוכל לתקן את זה לטובת כולנו!',
     // משפט נוסף לשמירת עניין
