@@ -106,7 +106,7 @@
         white-space: nowrap;
         font-size: 15.5px;
         font-weight: 500;
-        padding-left: 200px;
+        padding-left: 300px;
         line-height: 1.6;
         display: flex;
         align-items: center;
