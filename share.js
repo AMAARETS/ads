@@ -1,9 +1,9 @@
 /**
- * promote-banner-ticker.js
+ * promote-banner-ticker-v7.js
  *
  * A slim, fixed banner with a SEAMLESS scrolling text ticker,
- * featuring internal Angular navigation and embedded copy chips.
- * Version: 6.0 (Seamless Ticker Loop + Hover Pause + Internal Nav)
+ * featuring internal Angular navigation styled as chips, hover pause,
+ * and extremely slow scroll speed.
  */
 
 (function() {
@@ -13,28 +13,30 @@
       extension: 'https://chromewebstore.google.com/detail/odiokhddkoempbdcanepmjbichfifggo#utm_source=share_web&utm_medume=baner&utm_id=5',
       site: 'https://thechannel-viewer.clickandgo.cfd/?utm_source=share_web&utm_medume=baner&utm_id=5'
     },
-    scrollDuration: 25 // seconds for one full loop (controls speed)
+    scrollDuration: 45 // New, much slower speed: 45 seconds for one full loop
   };
 
   // --- HTML Content - Rephrased & Designed for Seamless Loop ---
-  // כל משפט צריך להיות ארוך מספיק כדי למלא את הטיקר
   const MESSAGES = [
-    // ניסוח מחודש: שיתוף
-    '🎁 נהנים מהצפיה הנוחה? שתפו גם את החברים שלכם! שלחו להם קישור לתוסף: [EXT_LINK] או להתרשמות באתר: [SITE_LINK]',
-    // ניסוח מחודש: עזרה
-    '🛠️ בעיות בהתחברות לגוגל? אל דאגה! עיינו מיד ב[HELP_LINK] שלנו, או [CONTACT_LINK] אותנו אם הבעיה נמשכת.',
+    // ניסוח מעודכן: שיתוף
+    '🎁 נהנים מהצפייה הנוחה? שתפו גם את החברים שלכם! שלחו להם קישור לתוסף: [EXT_LINK] או להתרשמות באתר: [SITE_LINK]',
+    // ניסוח מעודכן: עזרה
+    '🛠️ בעיות בהתחברות לגוגל? אל דאגה! עיינו מיד ב[HELP_LINK] שלנו, או [CONTACT_LINK] אם הבעיה נמשכת.',
     // משפט נוסף לשמירת עניין
-    '🚀 הגיע הזמן לשדרג את החוויה של הצפיה בערוצים! הערוצים המובילים בתוך דף הגימייל שלך – בקלות, במהירות ובכיף.',
+    '🚀 הגיע הזמן לשדרג את חווית הצפייה בערוצים! הערוצים המובילים בתוך דף הגימייל שלך – בקלות, במהירות ובכיף.',
     // ... חזרה למשפט הראשון כדי להבטיח אורך מספיק ללולאה חלקה
-    '🎁 נהנים מהצפיה הנוחה? שתפו גם את החברים שלכם! שלחו להם קישור לתוסף: [EXT_LINK] או להתרשמות באתר: [SITE_LINK]',
+    '🎁 נהנים מהצפייה הנוחה? שתפו גם את החברים שלכם! שלחו להם קישור לתוסף: [EXT_LINK] או להתרשמות באתר: [SITE_LINK]',
   ];
 
   // --- Utility to replace placeholders with interactive elements (HTML) ---
   function createTickerContent() {
-    const extChip = `<button class="ph-chip" data-copy="${CONFIG.links.extension}">🧩 העתק תוסף</button>`;
-    const siteChip = `<button class="ph-chip" data-copy="${CONFIG.links.site}">🌐 העתק אתר</button>`;
-    const helpLink = `<button class="ph-nav-link" data-nav="help" data-section="login">מדריך עזרה להתחברות</button>`;
-    const contactLink = `<button class="ph-nav-link" data-nav="contact">צרו קשר</button>`;
+    // Buttons for Copy (Chips)
+    const extChip = `<button class="ph-chip ph-copy-chip" data-copy="${CONFIG.links.extension}">🧩 העתק קישור לתוסף</button>`;
+    const siteChip = `<button class="ph-chip ph-copy-chip" data-copy="${CONFIG.links.site}">🌐 העתק קישור לאתר</button>`;
+    
+    // Buttons for Navigation (Styled as Chips)
+    const helpLink = `<button class="ph-chip ph-nav-chip" data-nav="help" data-section="login">מדריך עזרה להתחברות</button>`;
+    const contactLink = `<button class="ph-chip ph-nav-chip" data-nav="contact">צרו איתנו קשר</button>`;
 
     return MESSAGES.map(msg => {
       let content = msg;
@@ -58,6 +60,7 @@
       height: 55px;
       padding: 0 15px;
       box-sizing: border-box;
+      /* גרדיאנט יפה ומשכנע */
       background: linear-gradient(270deg, #3a506b, #1d2b64, #71b280, #134e5e);
       background-size: 800% 800%;
       color: white;
@@ -91,7 +94,6 @@
         width: fit-content;
         animation: ph-scroll-text ${CONFIG.scrollDuration}s linear infinite;
         align-items: center;
-        /* Pause on hover */
         cursor: grab;
     }
     .ph-ticker-track:hover {
@@ -102,54 +104,48 @@
         white-space: nowrap;
         font-size: 15.5px;
         font-weight: 500;
-        padding-left: 50px; /* Gap between repeated sentences in RTL */
+        padding-left: 50px;
         line-height: 1.6;
         display: flex;
         align-items: center;
-        gap: 10px; /* Spacing between text and chips/links */
+        gap: 10px;
     }
 
-    /* --- Embedded Copy Chips --- */
+    /* --- Interactive Chips (Copy & Nav) --- */
     .ph-chip {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        background: rgba(255, 255, 255, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        padding: 4px 10px;
-        border-radius: 16px;
-        font-size: 12.5px;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.2s ease-in-out;
         color: white;
         white-space: nowrap;
         font-family: inherit;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
     .ph-chip:hover {
-        background: white;
+        background: #fff;
         color: #1d2b64;
         font-weight: 600;
-        transform: scale(1.03);
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
-
-    /* --- Internal Navigation Links (Styled as buttons but with link look) --- */
-    .ph-nav-link {
-        color: #ffecd2;
-        font-weight: 700;
-        cursor: pointer;
-        text-decoration: underline;
-        text-underline-offset: 3px;
-        transition: color 0.2s, text-shadow 0.2s;
-        background: none;
-        border: none;
-        padding: 0;
-        font-family: inherit;
-        font-size: inherit;
-        line-height: 1.6;
+    
+    /* קצת עיצוב שונה לקישורי ניווט כדי להבדילם (אך עדיין צ'יפ) */
+    .ph-nav-chip {
+        background: #ffecd2; /* צבע בהיר יותר למשיכת תשומת לב */
+        color: #1d2b64;
+        font-weight: 600;
     }
-    .ph-nav-link:hover {
-        color: #fff;
-        text-shadow: 0 0 5px rgba(255,255,255,0.7);
+    .ph-nav-chip:hover {
+        background: white;
+        color: #3a506b;
     }
 
     /* --- Toast Notification (Copied feedback) --- */
@@ -184,12 +180,21 @@
     @keyframes ph-gradient { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
     @keyframes ph-icon-pulse { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
 
-    /* MODIFIED Animation for seamless loop (RTL) */
+    /* Animation for seamless loop (RTL) */
     @keyframes ph-scroll-text {
-        /* Start from position 0 (first message is visible) */
         from { transform: translateX(0); }
-        /* End by moving exactly the width of the repeating block to the right (RTL scroll effect) */
         to { transform: translateX(50%); }
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .ph-banner { height: auto; min-height: 55px; align-items: flex-start; padding: 8px 15px; }
+        .ph-static-icon { display: none; }
+        .ph-ticker-wrap { height: auto; }
+        .ph-ticker-track { flex-direction: column; animation: none; width: 100%; align-items: flex-start;}
+        .ph-ticker-item { white-space: normal; padding-left: 0; margin-bottom: 10px; flex-direction: column; align-items: flex-start; gap: 5px;}
+        .ph-ticker-track:hover { animation-play-state: running; }
+        .ph-chip { margin-top: 5px; }
     }
   `;
 
@@ -237,10 +242,12 @@
 
   // Handle Internal Angular Navigation
   function bindNavigationEvents() {
-    const navButtons = document.querySelectorAll('.ph-nav-link');
+    // Select the navigation chips only
+    const navButtons = document.querySelectorAll('.ph-chip.ph-nav-chip');
     navButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
+            e.stopPropagation(); // Stop ticker pause/grab event
             const target = btn.getAttribute('data-nav');
             const section = btn.getAttribute('data-section');
 
@@ -258,10 +265,10 @@
 
   // Handle Copy to Clipboard
   function bindCopyEvents() {
-    const copyBtns = document.querySelectorAll('.ph-chip[data-copy]');
+    const copyBtns = document.querySelectorAll('.ph-chip.ph-copy-chip[data-copy]');
     copyBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent the parent element from getting event
+            e.stopPropagation(); // Prevent the parent ticker from pausing/grabbing
             const link = btn.getAttribute('data-copy');
             copyToClipboard(link);
         });
@@ -292,7 +299,7 @@
   function showToast(msg, icon = '✅') {
       const toast = document.getElementById('ph-toast');
       const msgSpan = document.getElementById('ph-toast-msg');
-      const iconSpan = toast.querySelector('span'); // First span is icon
+      const iconSpan = toast.querySelector('span');
 
       msgSpan.textContent = msg;
       iconSpan.textContent = icon;
