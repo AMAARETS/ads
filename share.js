@@ -1,7 +1,9 @@
 /**
- * promote-banner-angular-integrated.js
+ * promote-banner-ticker.js
  *
- * Banner with internal Angular navigation and embedded copy chips.
+ * A slim, fixed banner with a SEAMLESS scrolling text ticker,
+ * featuring internal Angular navigation and embedded copy chips.
+ * Version: 6.0 (Seamless Ticker Loop + Hover Pause + Internal Nav)
  */
 
 (function() {
@@ -11,120 +13,146 @@
       extension: 'https://chromewebstore.google.com/detail/odiokhddkoempbdcanepmjbichfifggo#utm_source=share_web&utm_medume=baner&utm_id=5',
       site: 'https://thechannel-viewer.clickandgo.cfd/?utm_source=share_web&utm_medume=baner&utm_id=5'
     },
-    rotationInterval: 8000 // 8 seconds per slide
+    scrollDuration: 25 // seconds for one full loop (controls speed)
   };
+
+  // --- HTML Content - Rephrased & Designed for Seamless Loop ---
+  // כל משפט צריך להיות ארוך מספיק כדי למלא את הטיקר
+  const MESSAGES = [
+    // ניסוח מחודש: שיתוף
+    '🎁 נהנים מהצפיה הנוחה? שתפו גם את החברים שלכם! שלחו להם קישור לתוסף: [EXT_LINK] או להתרשמות באתר: [SITE_LINK]',
+    // ניסוח מחודש: עזרה
+    '🛠️ בעיות בהתחברות לגוגל? אל דאגה! עיינו מיד ב[HELP_LINK] שלנו, או [CONTACT_LINK] אותנו אם הבעיה נמשכת.',
+    // משפט נוסף לשמירת עניין
+    '🚀 הגיע הזמן לשדרג את החוויה של הצפיה בערוצים! הערוצים המובילים בתוך דף הגימייל שלך – בקלות, במהירות ובכיף.',
+    // ... חזרה למשפט הראשון כדי להבטיח אורך מספיק ללולאה חלקה
+    '🎁 נהנים מהצפיה הנוחה? שתפו גם את החברים שלכם! שלחו להם קישור לתוסף: [EXT_LINK] או להתרשמות באתר: [SITE_LINK]',
+  ];
+
+  // --- Utility to replace placeholders with interactive elements (HTML) ---
+  function createTickerContent() {
+    const extChip = `<button class="ph-chip" data-copy="${CONFIG.links.extension}">🧩 העתק תוסף</button>`;
+    const siteChip = `<button class="ph-chip" data-copy="${CONFIG.links.site}">🌐 העתק אתר</button>`;
+    const helpLink = `<button class="ph-nav-link" data-nav="help" data-section="login">מדריך עזרה להתחברות</button>`;
+    const contactLink = `<button class="ph-nav-link" data-nav="contact">צרו קשר</button>`;
+
+    return MESSAGES.map(msg => {
+      let content = msg;
+      content = content.replace('[EXT_LINK]', extChip);
+      content = content.replace('[SITE_LINK]', siteChip);
+      content = content.replace('[HELP_LINK]', helpLink);
+      content = content.replace('[CONTACT_LINK]', contactLink);
+      return `<span class="ph-ticker-item">${content}</span>`;
+    }).join('');
+  }
+
 
   // --- Styles (CSS) ---
   const styles = `
+    /* --- Main Banner and Layout --- */
     .ph-banner {
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       width: 100%;
-      height: 60px;
+      height: 55px;
       padding: 0 15px;
       box-sizing: border-box;
-      background: linear-gradient(270deg, #1d2b64, #3a506b, #134e5e, #71b280);
+      background: linear-gradient(270deg, #3a506b, #1d2b64, #71b280, #134e5e);
       background-size: 800% 800%;
       color: white;
       font-family: 'Assistant', -apple-system, BlinkMacSystemFont, sans-serif;
       z-index: 9997;
       box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
       animation: ph-gradient 18s ease infinite;
-      direction: rtl; /* Ensure RTL layout */
+      direction: rtl;
+      overflow: hidden;
     }
 
-    .ph-slider-container {
-        position: relative;
-        width: 100%;
-        max-width: 900px;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    /* --- Left Side Static Icon --- */
+    .ph-static-icon {
+        font-size: 24px;
+        line-height: 1;
+        margin-left: 15px;
+        flex-shrink: 0;
+        animation: ph-icon-pulse 3s infinite alternate;
+    }
+
+    /* --- Ticker Core Styles --- */
+    .ph-ticker-wrap {
+        flex-grow: 1;
         overflow: hidden;
-    }
-
-    .ph-slide {
-        position: absolute;
-        width: 100%;
         display: flex;
         align-items: center;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 10px;
-        opacity: 0;
-        transform: translateY(15px);
-        transition: opacity 0.5s ease, transform 0.5s ease;
-        pointer-events: none;
+        height: 100%;
     }
-
-    .ph-slide.ph-active {
-        opacity: 1;
-        transform: translateY(0);
-        pointer-events: all;
+    .ph-ticker-track {
+        display: flex;
+        width: fit-content;
+        animation: ph-scroll-text ${CONFIG.scrollDuration}s linear infinite;
+        align-items: center;
+        /* Pause on hover */
+        cursor: grab;
     }
-
-    .ph-text {
-        font-size: 16px;
-        font-weight: 500;
+    .ph-ticker-track:hover {
+        animation-play-state: paused;
+        cursor: grabbing;
+    }
+    .ph-ticker-item {
         white-space: nowrap;
+        font-size: 15.5px;
+        font-weight: 500;
+        padding-left: 50px; /* Gap between repeated sentences in RTL */
+        line-height: 1.6;
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Spacing between text and chips/links */
     }
 
     /* --- Embedded Copy Chips --- */
-    .ph-chips-wrapper {
-        display: inline-flex;
-        gap: 8px;
-        margin-right: 8px;
-        vertical-align: middle;
-    }
-
     .ph-chip {
         display: inline-flex;
         align-items: center;
         gap: 6px;
         background: rgba(255, 255, 255, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 13px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        padding: 4px 10px;
+        border-radius: 16px;
+        font-size: 12.5px;
         cursor: pointer;
         transition: all 0.2s;
         color: white;
         white-space: nowrap;
+        font-family: inherit;
     }
-
     .ph-chip:hover {
         background: white;
         color: #1d2b64;
         font-weight: 600;
+        transform: scale(1.03);
     }
 
-    .ph-chip:active {
-        transform: scale(0.95);
-    }
-
-    /* --- Internal Navigation Links --- */
+    /* --- Internal Navigation Links (Styled as buttons but with link look) --- */
     .ph-nav-link {
         color: #ffecd2;
         font-weight: 700;
         cursor: pointer;
         text-decoration: underline;
         text-underline-offset: 3px;
-        transition: color 0.2s;
+        transition: color 0.2s, text-shadow 0.2s;
         background: none;
         border: none;
         padding: 0;
         font-family: inherit;
         font-size: inherit;
+        line-height: 1.6;
     }
-
     .ph-nav-link:hover {
         color: #fff;
-        text-shadow: 0 0 8px rgba(255,255,255,0.6);
+        text-shadow: 0 0 5px rgba(255,255,255,0.7);
     }
 
-    /* --- Toast Notification --- */
+    /* --- Toast Notification (Copied feedback) --- */
     .ph-toast {
         position: fixed;
         bottom: 80px;
@@ -144,6 +172,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        direction: rtl;
     }
     .ph-toast.show {
         opacity: 1;
@@ -151,47 +180,31 @@
         transform: translateX(-50%) translateY(0);
     }
 
+    /* --- Keyframe Animations --- */
     @keyframes ph-gradient { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+    @keyframes ph-icon-pulse { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
 
-    @media (max-width: 768px) {
-        .ph-banner { height: auto; padding: 12px; }
-        .ph-slide { position: relative; display: none; text-align: center; flex-direction: column; gap: 6px; }
-        .ph-slide.ph-active { display: flex; }
-        .ph-text { white-space: normal; line-height: 1.4; }
-        .ph-chips-wrapper { margin-right: 0; margin-top: 4px; }
+    /* MODIFIED Animation for seamless loop (RTL) */
+    @keyframes ph-scroll-text {
+        /* Start from position 0 (first message is visible) */
+        from { transform: translateX(0); }
+        /* End by moving exactly the width of the repeating block to the right (RTL scroll effect) */
+        to { transform: translateX(50%); }
     }
   `;
 
   // --- HTML Template ---
   const bannerHtml = `
     <div id="ph-main-banner" class="ph-banner">
-      <div class="ph-slider-container">
+      <!-- Static content on the RIGHT (in RTL) -->
+      <div class="ph-static-icon">📢</div>
 
-        <!-- Slide 1: Share / Copy -->
-        <div class="ph-slide ph-active">
-            <span class="ph-text">
-                ✨ נהניתם מהתוסף? ספרו גם לחברים!
-                <div class="ph-chips-wrapper">
-                    <button class="ph-chip" data-copy="${CONFIG.links.extension}">
-                        <span>🧩</span> העתק תוסף
-                    </button>
-                    <button class="ph-chip" data-copy="${CONFIG.links.site}">
-                        <span>🌐</span> העתק אתר
-                    </button>
-                </div>
-            </span>
-        </div>
-
-        <!-- Slide 2: Help / Contact (Internal Nav) -->
-        <div class="ph-slide">
-            <span class="ph-text">
-                🚧 לא מצליחים להתחבר? אל יאוש!
-                <button class="ph-nav-link" data-nav="help" data-section="login">עיינו בדף העזרה</button>,
-                ובמקרה הצורך
-                <button class="ph-nav-link" data-nav="contact">תוכלו לשאול אותנו</button>
-            </span>
-        </div>
-
+      <!-- Seamless Scrolling Ticker in the middle -->
+      <div class="ph-ticker-wrap">
+          <div class="ph-ticker-track">
+              ${createTickerContent()}
+              ${createTickerContent()} <!-- Repeat content for seamless loop -->
+          </div>
       </div>
     </div>
 
@@ -217,10 +230,9 @@
     // 2. Inject HTML
     adContainer.innerHTML = bannerHtml;
 
-    // 3. Bind Events & Start
+    // 3. Bind Events
     bindCopyEvents();
     bindNavigationEvents();
-    startRotation();
   }
 
   // Handle Internal Angular Navigation
@@ -249,6 +261,7 @@
     const copyBtns = document.querySelectorAll('.ph-chip[data-copy]');
     copyBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent the parent element from getting event
             const link = btn.getAttribute('data-copy');
             copyToClipboard(link);
         });
@@ -287,18 +300,6 @@
       toast.classList.add('show');
       if (toastTimeout) clearTimeout(toastTimeout);
       toastTimeout = setTimeout(() => toast.classList.remove('show'), 3000);
-  }
-
-  function startRotation() {
-    const slides = document.querySelectorAll('.ph-slide');
-    if (slides.length < 2) return;
-    let index = 0;
-
-    setInterval(() => {
-        slides[index].classList.remove('ph-active');
-        index = (index + 1) % slides.length;
-        slides[index].classList.add('ph-active');
-    }, CONFIG.rotationInterval);
   }
 
   // Run
