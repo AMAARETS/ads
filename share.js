@@ -22,10 +22,9 @@
     '🎁 נהנים מהצפייה הנוחה? שתפו גם את החברים שלכם! שלחו להם קישור לתוסף: [EXT_LINK] או להתרשמות באתר: [SITE_LINK]',
     // ניסוח מעודכן: עזרה
     '🛠️ בעיות בהתחברות לגוגל? אל דאגה! עיינו מיד ב[HELP_LINK] שלנו, או [CONTACT_LINK] אם הבעיה נמשכת.',
+    'מצאתם באג? [CONTACT_LINK2] כדי שנוכל לתקן את זה לטובת כולנו!',
     // משפט נוסף לשמירת עניין
     '🚀 הגיע הזמן לשדרג את חווית הצפייה בערוצים! הערוצים המובילים בתוך דף הגימייל שלך – בקלות, במהירות ובכיף.',
-    // ... חזרה למשפט הראשון כדי להבטיח אורך מספיק ללולאה חלקה
-    '🎁 נהנים מהצפייה הנוחה? שתפו גם את החברים שלכם! שלחו להם קישור לתוסף: [EXT_LINK] או להתרשמות באתר: [SITE_LINK]',
   ];
 
   // --- Utility to replace placeholders with interactive elements (HTML) ---
@@ -37,13 +36,15 @@
     // Buttons for Navigation (Styled as Chips)
     const helpLink = `<button class="ph-chip ph-nav-chip" data-nav="help" data-section="login">מדריך עזרה להתחברות</button>`;
     const contactLink = `<button class="ph-chip ph-nav-chip" data-nav="contact">צרו איתנו קשר</button>`;
-
+    const contactLink2 = `<button class="ph-chip ph-nav-chip" data-nav="contact">ספרו לנו</button>`;
+    
     return MESSAGES.map(msg => {
       let content = msg;
       content = content.replace('[EXT_LINK]', extChip);
       content = content.replace('[SITE_LINK]', siteChip);
       content = content.replace('[HELP_LINK]', helpLink);
       content = content.replace('[CONTACT_LINK]', contactLink);
+      content = content.replace('[CONTACT_LINK2]', contactLink2);
       return `<span class="ph-ticker-item">${content}</span>`;
     }).join('');
   }
