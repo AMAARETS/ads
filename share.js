@@ -1,11 +1,13 @@
 /**
- * promote-banner-ticker-v7.js
+ * promote-banner-ticker-v8.js
  *
- * A slim, fixed banner with a SEAMLESS scrolling text ticker,
- * featuring internal Angular navigation styled as chips, hover pause,
- * and extremely slow scroll speed.
+ * A slim, fixed banner with a SEAMLESS scrolling text ticker.
  * 
- * MODIFIED: Added local storage check and a delayed close button.
+ * FEATURES:
+ * - Internal Angular navigation chips.
+ * - LocalStorage "share1" check to hide banner permanently.
+ * - Tiny "X" button (10px) in top-left corner (Overlay).
+ * - "X" appears only after 1 full animation loop.
  */
 
 (function() {
@@ -15,28 +17,24 @@
       extension: 'https://chromewebstore.google.com/detail/odiokhddkoempbdcanepmjbichfifggo#utm_source=share_web&utm_medume=baner&utm_id=5',
       site: 'https://thechannel-viewer.clickandgo.cfd/?utm_source=share_web&utm_medume=baner&utm_id=5'
     },
-    scrollDuration: 60 // 60 seconds for one full loop
+    // זמן סיבוב אנימציה בשניות (אחרי זמן זה יופיע האיקס)
+    scrollDuration: 60 
   };
 
-  // --- HTML Content - Rephrased & Designed for Seamless Loop ---
+  // --- HTML Content ---
   const MESSAGES = [
-    // ניסוח מעודכן: שיתוף
     '🎁 נהנים מהצפייה הנוחה? שתפו גם את החברים שלכם! שלחו להם קישור לתוסף: [EXT_LINK] או להתרשמות באתר: [SITE_LINK]',
-    // ניסוח מעודכן: עזרה
     'יש לכם הצעה לשיפור או לתוספת מועילה? [CONTACT_LINK2] כדי שנוכל להוסיף!',
     '🛠️ בעיות בהתחברות לגוגל? אל דאגה! עיינו מיד ב[HELP_LINK] שלנו, או [CONTACT_LINK] אם הבעיה נמשכת.',
     'מצאתם באג? [CONTACT_LINK2] כדי שנוכל לתקן את זה לטובת כולנו!',
-    // משפט נוסף לשמירת עניין
     '🚀 הגיע הזמן לשדרג את חווית הצפייה בערוצים! הערוצים המובילים בתוך דף הגימייל שלך – בקלות, במהירות ובכיף.',
   ];
 
-  // --- Utility to replace placeholders with interactive elements (HTML) ---
+  // --- Utility to replace placeholders ---
   function createTickerContent() {
-    // Buttons for Copy (Chips)
     const extChip = `<button class="ph-chip ph-copy-chip" data-copy="${CONFIG.links.extension}">🧩 העתק קישור לתוסף</button>`;
     const siteChip = `<button class="ph-chip ph-copy-chip" data-copy="${CONFIG.links.site}">🌐 העתק קישור לאתר</button>`;
     
-    // Buttons for Navigation (Styled as Chips)
     const helpLink = `<button class="ph-chip ph-nav-chip" data-nav="help" data-section="login">מדריך עזרה להתחברות</button>`;
     const contactLink = `<button class="ph-chip ph-nav-chip" data-nav="contact">צרו איתנו קשר</button>`;
     const contactLink2 = `<button class="ph-chip ph-nav-chip" data-nav="contact">ספרו לנו</button>`;
@@ -52,11 +50,12 @@
     }).join('');
   }
 
-
   // --- Styles (CSS) ---
   const styles = `
     /* --- Main Banner and Layout --- */
     .ph-banner {
+      /* Relative positioning is crucial so the absolute X button is relative to the banner */
+      position: relative; 
       display: flex;
       align-items: center;
       justify-content: flex-start;
@@ -64,7 +63,6 @@
       height: 55px;
       padding: 0 15px;
       box-sizing: border-box;
-      /* גרדיאנט יפה ומשכנע */
       background: linear-gradient(270deg, #3a506b, #1d2b64, #71b280, #134e5e);
       background-size: 800% 800%;
       color: white;
@@ -76,6 +74,46 @@
       overflow: hidden;
     }
 
+    /* --- Close Button (Tiny Overlay X) --- */
+    .ph-close-btn {
+        position: absolute; /* Floating above content */
+        top: 3px;           /* Top corner */
+        left: 5px;          /* Left corner */
+        z-index: 10001;     /* Above the text ticker */
+        
+        background: rgba(0, 0, 0, 0.3); /* Semi-transparent background for contrast */
+        border: none;
+        color: rgba(255, 255, 255, 0.8);
+        
+        font-size: 10px;    /* Tiny text size as requested */
+        width: 18px;        /* Small circular area */
+        height: 18px;
+        border-radius: 50%;
+        
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+        
+        transition: all 0.3s ease;
+        opacity: 0;         /* Hidden initially */
+        pointer-events: none; /* Not clickable when hidden */
+    }
+
+    .ph-close-btn:hover {
+        background: rgba(255, 0, 0, 0.6);
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    /* Class to make it appear */
+    .ph-close-btn.show-close {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
     /* --- Left Side Static Icon --- */
     .ph-static-icon {
         font-size: 24px;
@@ -83,33 +121,6 @@
         margin-left: 15px;
         flex-shrink: 0;
         animation: ph-icon-pulse 3s infinite alternate;
-    }
-
-    /* --- Close Button Style (NEW) --- */
-    .ph-close-btn {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 26px; /* גודל נח ללחיצה */
-        line-height: 1;
-        cursor: pointer;
-        padding: 0;
-        margin-right: 15px; /* מרווח מהקצה השמאלי */
-        flex-shrink: 0;
-        transition: opacity 0.5s ease, transform 0.2s;
-        opacity: 0; /* מוסתר בהתחלה */
-        pointer-events: none; /* לא ניתן ללחוץ כשמוסתר */
-    }
-    
-    .ph-close-btn:hover {
-        opacity: 0.8 !important;
-        transform: scale(1.1);
-    }
-    
-    /* Utility class to make it visible */
-    .ph-close-btn.show-close {
-        opacity: 1;
-        pointer-events: auto;
     }
 
     /* --- Ticker Core Styles --- */
@@ -142,7 +153,7 @@
         gap: 10px;
     }
 
-    /* --- Interactive Chips (Copy & Nav) --- */
+    /* --- Interactive Chips --- */
     .ph-chip {
         display: inline-flex;
         align-items: center;
@@ -167,10 +178,8 @@
         transform: scale(1.05);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
-    
-    /* קצת עיצוב שונה לקישורי ניווט כדי להבדילם (אך עדיין צ'יפ) */
     .ph-nav-chip {
-        background: #ffecd2; /* צבע בהיר יותר למשיכת תשומת לב */
+        background: #ffecd2;
         color: #1d2b64;
         font-weight: 600;
     }
@@ -179,7 +188,7 @@
         color: #3a506b;
     }
 
-    /* --- Toast Notification (Copied feedback) --- */
+    /* --- Toast --- */
     .ph-toast {
         position: fixed;
         bottom: 80px;
@@ -207,21 +216,17 @@
         transform: translateX(-50%) translateY(0);
     }
 
-    /* --- Keyframe Animations --- */
+    /* --- Animations --- */
     @keyframes ph-gradient { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
     @keyframes ph-icon-pulse { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
-
-    /* Animation for seamless loop (RTL) */
     @keyframes ph-scroll-text {
         from { transform: translateX(0); }
         to { transform: translateX(50%); }
     }
     
-    /* Responsive adjustments */
     @media (max-width: 768px) {
         .ph-banner { height: auto; min-height: 55px; align-items: flex-start; padding: 8px 15px; }
         .ph-static-icon { display: none; }
-        .ph-close-btn { margin-right: 0; margin-left: 15px; } /* מיקום האיקס בצד ימין למובייל, ליד האייקון הסטטי (אם היה) */
         .ph-ticker-wrap { height: auto; }
         .ph-ticker-track { flex-direction: column; animation: none; width: 100%; align-items: flex-start;}
         .ph-ticker-item { white-space: normal; padding-left: 0; margin-bottom: 10px; flex-direction: column; align-items: flex-start; gap: 5px;}
@@ -233,18 +238,18 @@
   // --- HTML Template ---
   const bannerHtml = `
     <div id="ph-main-banner" class="ph-banner">
-      <!-- Static content on the RIGHT (in RTL) -->
+      <!-- Static content on the RIGHT -->
       <div class="ph-static-icon">📢</div>
 
-      <!-- Seamless Scrolling Ticker in the middle -->
+      <!-- Seamless Scrolling Ticker -->
       <div class="ph-ticker-wrap">
           <div class="ph-ticker-track">
               ${createTickerContent()}
-              ${createTickerContent()} <!-- Repeat content for seamless loop -->
+              ${createTickerContent()}
           </div>
       </div>
       
-      <!-- NEW: Close Button (X) -->
+      <!-- Tiny Overlay Close Button (Top Left) -->
       <button id="ph-close-btn" class="ph-close-btn" title="סגור את הבאנר">&#x2715;</button> 
     </div>
 
@@ -256,12 +261,10 @@
 
   // --- Logic ---
   function init() {
-    // ********************************************
-    // 0. NEW: Check Dismissal Flag in Local Storage
-    // ********************************************
+    // 1. Check Local Storage ("share1")
     if (localStorage.getItem('share1') === 'dismissed') {
-        console.log('Banner Script: Dismissed flag found in local storage. Not displaying banner.');
-        return; // Exit the function, banner will not be displayed
+        // אם המשתמש כבר סגר בעבר, לא מציגים כלום
+        return; 
     }
       
     const adContainer = document.getElementById('ad-placement-container');
@@ -270,60 +273,49 @@
       return;
     }
 
-    // 1. Inject CSS
+    // 2. Inject CSS & HTML
     const styleTag = document.createElement('style');
     styleTag.innerHTML = styles;
     document.head.appendChild(styleTag);
-
-    // 2. Inject HTML
     adContainer.innerHTML = bannerHtml;
 
     // 3. Bind Events
     bindCopyEvents();
     bindNavigationEvents();
-    bindCloseEvent(); // NEW: Bind the close logic
+    bindCloseEvent();
 
-    // ********************************************
-    // 4. NEW: Delayed Close Button Visibility
-    // ********************************************
+    // 4. Delayed Close Button
+    // מציג את האיקס רק לאחר סיום אנימציה אחת (לפי ההגדרה ב-CONFIG)
     const closeBtn = document.getElementById('ph-close-btn');
     if (closeBtn) {
-        // המרת משך האנימציה (שניות) לאלפיות שניה
-        const delayInMs = CONFIG.scrollDuration * 1000;
-        
         setTimeout(() => {
             closeBtn.classList.add('show-close');
-            console.log('Banner Script: Close button is now visible after one loop.');
-        }, delayInMs);
+        }, (CONFIG.scrollDuration * 1000) - 13000);
     }
   }
 
-  // Handle Internal Angular Navigation
+  // --- Event Handlers ---
+
   function bindNavigationEvents() {
-    // Select the navigation chips only
     const navButtons = document.querySelectorAll('.ph-chip.ph-nav-chip');
     navButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
-            e.stopPropagation(); // Stop ticker pause/grab event
+            e.stopPropagation();
             const target = btn.getAttribute('data-nav');
             const section = btn.getAttribute('data-section');
 
-            // בדיקה אם ה-API של האפליקציה קיים
             if (window.theChannel && typeof window.theChannel.navigateTo === 'function') {
                 const params = section ? { section } : {};
                 window.theChannel.navigateTo(target, params);
             } else {
-                console.error('TheChannel API not found on window object');
+                console.error('TheChannel API not found');
                 showToast('שגיאת ניווט פנימית', '❌');
             }
         });
     });
   }
   
-  // ********************************************
-  // NEW: Handle Close Button Click
-  // ********************************************
   function bindCloseEvent() {
     const closeBtn = document.getElementById('ph-close-btn');
     const banner = document.getElementById('ph-main-banner');
@@ -333,27 +325,24 @@
         e.preventDefault();
         e.stopPropagation();
         
-        // 1. Set dismissal flag in local storage
+        // שמירת הסימון שהמשתמש סגר את הבאנר
         localStorage.setItem('share1', 'dismissed');
         
-        // 2. Remove the banner from the DOM
+        // מחיקת הבאנר מהדף
         banner.remove();
         
-        // Optional: Remove toast too
+        // ניקוי טוסט אם קיים
         const toast = document.getElementById('ph-toast');
         if (toast) toast.remove();
-        
-        console.log('Banner Script: Banner dismissed and "share1" flag set in local storage.');
       });
     }
   }
 
-  // Handle Copy to Clipboard
   function bindCopyEvents() {
     const copyBtns = document.querySelectorAll('.ph-chip.ph-copy-chip[data-copy]');
     copyBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent the parent ticker from pausing/grabbing
+            e.stopPropagation();
             const link = btn.getAttribute('data-copy');
             copyToClipboard(link);
         });
@@ -365,7 +354,6 @@
         await navigator.clipboard.writeText(text);
         showToast('הקישור הועתק בהצלחה!');
     } catch (err) {
-        // Fallback
         const textArea = document.createElement("textarea");
         textArea.value = text;
         document.body.appendChild(textArea);
@@ -394,7 +382,7 @@
       toastTimeout = setTimeout(() => toast.classList.remove('show'), 3000);
   }
 
-  // Run
+  // --- Initialization ---
   if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', init);
   } else {
