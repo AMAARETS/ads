@@ -60,7 +60,7 @@
       align-items: center;
       justify-content: flex-start;
       width: 100%;
-      height: 55px;
+      height: 55px; /* גובה קבוע */
       padding: 0 15px;
       box-sizing: border-box;
       background: linear-gradient(270deg, #3a506b, #1d2b64, #71b280, #134e5e);
@@ -71,7 +71,7 @@
       box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
       animation: ph-gradient 18s ease infinite;
       direction: rtl;
-      overflow: hidden;
+      overflow: hidden; /* מבטיח שמה שחורג מהגובה יוסתר */
     }
 
     /* --- Close Button (Tiny Overlay X) --- */
@@ -98,28 +98,25 @@
         line-height: 1;
         
         transition: all 0.3s ease;
-        opacity: 1;         /* Visible immediately */
+        opacity: 1;
     }
 
-    /* Active state (after timeout) */
     .ph-close-btn:not(.ph-disabled):hover {
         background: rgba(255, 0, 0, 0.6);
         color: white;
         transform: scale(1.1);
     }
 
-    /* Disabled State (Gray & Timer) */
     .ph-close-btn.ph-disabled {
-        background: rgba(100, 100, 100, 0.5); /* Gray background */
-        color: rgba(200, 200, 200, 0.5);       /* Dimmed text */
-        cursor: wait;                          /* Wait cursor */
+        background: rgba(100, 100, 100, 0.5);
+        color: rgba(200, 200, 200, 0.5);
+        cursor: wait;
     }
 
-    /* Tooltip logic for countdown */
     .ph-close-btn.ph-disabled::after {
-        content: attr(data-countdown); /* Shows the text from JS */
+        content: attr(data-countdown);
         position: absolute;
-        top: 22px; /* Position below the button */
+        top: 22px;
         right: 0;
         background: rgba(0, 0, 0, 0.85);
         color: white;
@@ -249,14 +246,29 @@
         to { transform: translateX(50%); }
     }
     
+    /* --- Mobile Optimization (Fixed) --- */
     @media (max-width: 768px) {
-        .ph-banner { height: auto; min-height: 55px; align-items: flex-start; padding: 8px 15px; }
-        .ph-static-icon { display: none; }
-        .ph-ticker-wrap { height: auto; }
-        .ph-ticker-track { flex-direction: column; animation: none; width: 100%; align-items: flex-start;}
-        .ph-ticker-item { white-space: normal; padding-left: 0; margin-bottom: 10px; flex-direction: column; align-items: flex-start; gap: 5px;}
-        .ph-ticker-track:hover { animation-play-state: running; }
-        .ph-chip { margin-top: 5px; }
+        .ph-banner {
+            /* שומרים על גובה קבוע במובייל כדי שלא יתפוס את כל המסך */
+            height: 55px; 
+            padding: 0 10px;
+        }
+        /* מסתירים את האייקון בצד כדי לתת מקום לטקסט */
+        .ph-static-icon { 
+            display: none; 
+        }
+        
+        /* מבטלים את השינוי לטור - משאירים גלילה רוחבית */
+        .ph-ticker-item {
+             /* מקטינים מעט את המרווח בין ההודעות במובייל */
+             padding-left: 150px; 
+        }
+        
+        /* הקטנת כפתורים מעט למובייל */
+        .ph-chip {
+            padding: 3px 8px;
+            font-size: 12px;
+        }
     }
   `;
 
