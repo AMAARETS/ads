@@ -1,6 +1,5 @@
 /**
- * GoodLink Banner - Final Version
- * Includes: Right Logo/Buttons, Middle Ticker, Left Advertise Link, and Click-to-Forum logic.
+ * GoodLink Banner - Final Enhanced Version
  */
 
 (function() {
@@ -31,7 +30,7 @@
       display: flex;
       align-items: center;
       width: 100%;
-      height: 65px;
+      height: 70px;
       padding: 0;
       box-sizing: border-box;
       background: linear-gradient(90deg, #1e4a7a 0%, #2980b9 40%, #7cb342 100%);
@@ -42,10 +41,10 @@
       direction: rtl;
       overflow: hidden;
       border-radius: 4px;
-      cursor: pointer; /* הפיכת כל הבאנר ללחיץ */
+      cursor: pointer;
     }
 
-    /* כפתור סגירה בצד ימין למעלה */
+    /* כפתור סגירה */
     .gl-close-btn {
         position: absolute;
         top: 3px;
@@ -78,46 +77,65 @@
         border-left: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .gl-logo-img { height: 45px; width: auto; margin-left: 12px; }
+    .gl-logo-img { height: 50px; width: auto; margin-left: 12px; }
     .gl-text-group { display: flex; flex-direction: column; margin-left: 15px; pointer-events: none; }
-    .gl-main-title { font-size: 16px; font-weight: 800; line-height: 1.1; }
-    .gl-sub-title { font-size: 12px; color: #ffcc00; font-weight: 400; }
+    .gl-main-title { font-size: 17px; font-weight: 800; line-height: 1.1; }
+    .gl-sub-title { font-size: 13px; color: #ffcc00; font-weight: 400; }
 
     .gl-btn-forum {
         background: #f39c12;
         color: white;
         border: none;
-        padding: 5px 12px;
+        padding: 6px 14px;
         border-radius: 15px;
         font-weight: bold;
-        font-size: 12px;
+        font-size: 13px;
         white-space: nowrap;
         cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
 
     /* טקסט רץ */
     .gl-ticker-area { flex-grow: 1; overflow: hidden; display: flex; align-items: center; pointer-events: none; }
     .gl-ticker-track { display: flex; width: fit-content; animation: gl-scroll-rtl ${CONFIG.scrollDuration}s linear infinite; }
-    .gl-ticker-item { white-space: nowrap; font-size: 15px; padding-left: 150px; }
+    .gl-ticker-item { white-space: nowrap; font-size: 16px; padding-left: 150px; }
 
-    /* כפתור "לפרסום" בצד שמאל */
-    .gl-advertise-link {
-        flex-shrink: 0;
+    /* כפתור "לפרסום" בצד שמאל - משודרג */
+    .gl-adv-container {
+        display: flex;
+        align-items: center;
         padding: 0 15px;
-        font-size: 11px;
-        color: rgba(255, 255, 255, 0.7);
-        text-decoration: underline;
-        cursor: pointer;
+        height: 100%;
+        flex-shrink: 0;
         z-index: 10001;
-        transition: color 0.2s;
     }
-    .gl-advertise-link:hover { color: #ffcc00; }
+
+    .gl-adv-button {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-size: 14px; /* גדול יותר */
+        font-weight: bold;
+        text-align: center;
+        line-height: 1.2;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .gl-adv-button:hover {
+        background: white;
+        color: #1e4a7a;
+        transform: scale(1.05);
+    }
 
     @keyframes gl-scroll-rtl { from { transform: translateX(0); } to { transform: translateX(100%); } }
 
     @media (max-width: 768px) {
         .gl-logo-img { height: 35px; }
-        .gl-text-group, .gl-advertise-link { display: none; }
+        .gl-text-group, .gl-adv-container { display: none; }
         .gl-ticker-item { font-size: 13px; padding-left: 80px; }
     }
   `;
@@ -152,8 +170,12 @@
           </div>
         </div>
 
-        <!-- צד שמאל: לפרסום -->
-        <div id="gl-adv-btn" class="gl-advertise-link">לפרסום לחץ כאן</div>
+        <!-- צד שמאל: כפתור לפרסום -->
+        <div class="gl-adv-container">
+          <div id="gl-adv-btn" class="gl-adv-button">
+            לפרסום<br>לחץ כאן
+          </div>
+        </div>
       </div>
     `;
 
@@ -165,16 +187,16 @@
 
     // --- לוגיקת לחיצות ---
 
-    // 1. לחיצה על כל הבאנר
+    // 1. לחיצה על כל הבאנר (פתיחת פורום)
     banner.addEventListener('click', (e) => {
-      // מניעת פתיחת הפורום אם לחצו על X או על "לפרסום"
+      // אם לחצו על ה-X או על כפתור הפרסום - אל תפתח את הפורום
       if (e.target.closest('#gl-close-btn') || e.target.closest('#gl-adv-btn')) {
         return;
       }
       window.open(CONFIG.links.forum, '_blank');
     });
 
-    // 2. לחיצה על "לפרסום לחץ כאן" (ניווט פנימי)
+    // 2. לחיצה על כפתור הפרסום (צור קשר)
     advBtn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -185,7 +207,7 @@
       }
     });
 
-    // 3. כפתור סגירה עם טיימר
+    // 3. כפתור סגירה עם טיימר (20 שניות)
     let timeLeft = 20;
     const timer = setInterval(() => {
       timeLeft--;
@@ -196,7 +218,7 @@
         closeBtn.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          banner.style.display = 'none';
+          banner.style.display = 'none'; // סגירה רק עד לרענון הבא
         });
       }
     }, 1000);
