@@ -1,197 +1,220 @@
 /**
- * GoodLink Promo Banner - Smart Shopping
+ * GoodLink Banner - Integrated Version
  * 
- * FEATURES:
- * - Color palette matched to GoodLink logo.
- * - Ticker with custom messaging.
- * - Non-permanent close (resets on refresh).
- * - Delayed close button.
+ * הזרקה לתוך ad-placement-container עם מיקום יחסי (Relative)
  */
 
 (function() {
   // --- Configuration ---
   const CONFIG = {
     links: {
-      forum: 'https://good-link.org/?utm_source=tosef&utm_medium=banner&utm_id=1',
-      join: 'https://good-link.org/register?utm_source=tosef&utm_medium=banner&utm_id=1'
+      forum: 'https://your-forum-link.com', // החלף בקישור האמיתי
+      logoImg: 'https://cdn.jsdelivr.net/gh/AMAARETS/ads@main/%D7%9C%D7%95%D7%92%D7%95%20%D7%92%D7%95%D7%93%20%D7%9C%D7%99%D7%A0%D7%A7%20%D7%97%D7%AA%D7%95%D7%9A.jpg'
     },
-    scrollDuration: 50 // מהירות הגלילה (שניות)
+    scrollDuration: 60 
   };
 
-  // --- HTML Content ---
   const MESSAGES = [
-    '🤝 <strong style="color: #ffcc00;">המקום היחיד שנועד לעזרה הדדית אמיתית.</strong>',
+    '🤝 <strong>המקום היחיד שנועד לעזרה הדדית אמיתית.</strong>',
     '🚫 נמאס לכם מהמלצות שנועדו רק כדי להרוויח עליכם?',
-    '💡 בפורום שלנו <strong>אסור</strong> להעלות קישורי שותפים. כאן ממליצים על מה שבאמת טוב, לא על מה שמשלם הכי הרבה.',
-    '🛒 בואו לקנות בראש שקט: <strong>100% עזרה הדדית. 0% עמלות קישורים.</strong>',
-    '✨ <strong>GoodLink: לקנות חכם ברשת.</strong> [JOIN_CHIP]'
+    '💡 בפורום שלנו אסור להעלות קישורי שותפים.',
+    '🛒 כאן ממליצים על מה שבאמת טוב, לא על מה שמשלם הכי הרבה.',
+    '✨ 100% עזרה הדדית. 0% עמלות קישורים. בואו לקנות בראש שקט.'
   ];
 
-  function createTickerContent() {
-    const joinChip = `<button class="gl-chip gl-nav-chip" onclick="window.open('${CONFIG.links.forum}', '_blank')">הצטרפו לקהילה שלנו</button>`;
-    
-    return MESSAGES.map(msg => {
-      let content = msg.replace('[JOIN_CHIP]', joinChip);
-      return `<span class="gl-ticker-item">${content}</span>`;
-    }).join('');
+  function createTickerItems() {
+    return MESSAGES.map(msg => `<span class="gl-ticker-item">${msg}</span>`).join('');
   }
 
   // --- Styles (CSS) ---
   const styles = `
-    .gl-banner {
-      position: fixed;
-      bottom: 0;
-      left: 0;
+    .gl-banner-wrapper {
+      position: relative; /* גורם לפרסומת לזרום עם הדף */
       display: flex;
       align-items: center;
       width: 100%;
-      height: 60px;
-      padding: 0 15px;
+      height: 65px; /* גובה מותאם לשתי שורות */
+      padding: 0;
       box-sizing: border-box;
-      /* פלטת צבעים מהלוגו: כחול, ירוק ונגיעה של כתום */
-      background: linear-gradient(90deg, #1e4a7a 0%, #2980b9 35%, #7cb342 70%, #9ccc65 100%);
+      background: linear-gradient(90deg, #1e4a7a 0%, #2980b9 40%, #7cb342 100%);
       color: white;
-      font-family: 'Assistant', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      z-index: 9999;
-      box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.3);
+      font-family: 'Assistant', sans-serif;
+      z-index: 9997;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       direction: rtl;
       overflow: hidden;
+      border-radius: 4px; /* עיגול פינות קל להתאמה לעיצוב אתר */
     }
 
+    /* כפתור סגירה בצד ימין למעלה כפי שביקשת */
     .gl-close-btn {
-        position: absolute; 
-        top: 5px;           
-        left: 10px;  
-        z-index: 10001;     
-        background: rgba(0, 0, 0, 0.4);
+        position: absolute;
+        top: 3px;
+        right: 5px;
+        z-index: 10001;
+        background: rgba(0, 0, 0, 0.3);
         border: none;
-        color: white;
-        font-size: 12px;    
-        width: 22px;        
-        height: 22px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 10px;
+        width: 18px;
+        height: 18px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.2s;
     }
+    .gl-close-btn.gl-disabled { opacity: 0.3; cursor: wait; }
+    .gl-close-btn:not(.gl-disabled):hover { background: #e74c3c; color: white; }
 
-    .gl-close-btn.gl-disabled {
-        background: rgba(150, 150, 150, 0.5);
-        color: rgba(255, 255, 255, 0.3);
-        cursor: wait;
-    }
-
-    .gl-close-btn:not(.gl-disabled):hover {
-        background: #e74c3c;
-    }
-
-    .gl-logo-icon {
-        font-size: 26px;
-        margin-left: 15px;
+    /* אזור סטטי ימני */
+    .gl-static-section {
+        display: flex;
+        align-items: center;
+        padding: 0 15px;
+        background: rgba(255, 255, 255, 0.05);
+        height: 100%;
         flex-shrink: 0;
-        filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+        z-index: 10;
+        border-left: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .gl-ticker-wrap {
+    .gl-logo-img {
+        height: 45px;
+        width: auto;
+        margin-left: 12px;
+    }
+
+    .gl-content-group {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin-left: 15px;
+    }
+
+    .gl-main-title {
+        font-size: 16px;
+        font-weight: 800;
+        line-height: 1.1;
+    }
+
+    .gl-sub-title {
+        font-size: 12px;
+        color: #ffcc00; /* הצבע הכתום מהלוגו */
+        font-weight: 400;
+    }
+
+    .gl-cta-button {
+        background: #f39c12;
+        color: white;
+        border: none;
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 12px;
+        white-space: nowrap;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .gl-cta-button:hover { background: white; color: #1e4a7a; }
+
+    /* אזור טקסט רץ */
+    .gl-ticker-container {
         flex-grow: 1;
         overflow: hidden;
         display: flex;
         align-items: center;
     }
+
     .gl-ticker-track {
         display: flex;
         width: fit-content;
-        animation: gl-scroll-text ${CONFIG.scrollDuration}s linear infinite;
-        align-items: center;
+        animation: gl-scroll-rtl ${CONFIG.scrollDuration}s linear infinite;
     }
-    .gl-ticker-track:hover {
-        animation-play-state: paused;
-    }
+    .gl-ticker-track:hover { animation-play-state: paused; }
+
     .gl-ticker-item {
         white-space: nowrap;
-        font-size: 16px;
-        padding-left: 200px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
+        font-size: 15px;
+        padding-left: 150px; /* מרווח בין משפטים */
     }
 
-    .gl-chip {
-        display: inline-flex;
-        background: #f39c12; /* הכתום מהלוגו */
-        border: none;
-        padding: 5px 15px;
-        border-radius: 20px;
-        font-size: 14px;
-        font-weight: bold;
-        cursor: pointer;
-        color: white;
-        transition: 0.3s;
-        margin-right: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-    .gl-chip:hover {
-        background: white;
-        color: #1e4a7a;
-        transform: translateY(-2px);
-    }
-
-    @keyframes gl-scroll-text {
+    @keyframes gl-scroll-rtl {
         from { transform: translateX(0); }
         to { transform: translateX(100%); }
     }
-    
+
     @media (max-width: 768px) {
-        .gl-banner { height: 50px; }
-        .gl-logo-icon { display: none; }
-        .gl-ticker-item { font-size: 14px; padding-left: 100px; }
+        .gl-logo-img { height: 35px; }
+        .gl-main-title { font-size: 14px; }
+        .gl-sub-title { display: none; }
+        .gl-ticker-item { font-size: 13px; padding-left: 80px; }
     }
   `;
 
-  // --- Logic ---
   function init() {
+    // 1. איתור הקונטיינר לפי הקוד המקורי
+    const adContainer = document.getElementById('ad-placement-container');
+    if (!adContainer) {
+      console.warn('GoodLink Ads: ad-placement-container not found.');
+      return;
+    }
+
+    // 2. הזרקת CSS
     const styleTag = document.createElement('style');
     styleTag.innerHTML = styles;
     document.head.appendChild(styleTag);
 
+    // 3. בניית ה-HTML
     const bannerHtml = `
-      <div id="gl-main-banner" class="gl-banner">
-        <div class="gl-logo-icon">🛒</div>
-        <div class="gl-ticker-wrap">
-            <div class="gl-ticker-track">
-                ${createTickerContent()}
-                ${createTickerContent()}
-            </div>
+      <div id="gl-banner" class="gl-banner-wrapper">
+        <button id="gl-close-btn" class="gl-close-btn gl-disabled" title="מחשב זמן...">✕</button>
+
+        <div class="gl-static-section">
+          <img src="${CONFIG.links.logoImg}" class="gl-logo-img" alt="GoodLink">
+          <div class="gl-content-group">
+            <span class="gl-main-title">פורום גוד-לינק</span>
+            <span class="gl-sub-title">פורום הקניות החדש</span>
+          </div>
+          <button class="gl-cta-button" onclick="window.open('${CONFIG.links.forum}', '_blank')">כניסה לפורום</button>
         </div>
-        <button id="gl-close-btn" class="gl-close-btn gl-disabled" title="מחשב זמן צפייה...">✕</button> 
+
+        <div class="gl-ticker-container">
+          <div class="gl-ticker-track">
+            ${createTickerItems()}
+            ${createTickerItems()}
+          </div>
+        </div>
       </div>
     `;
 
-    document.body.insertAdjacentHTML('beforeend', bannerHtml);
-    
-    const closeBtn = document.getElementById('gl-close-btn');
-    const banner = document.getElementById('gl-main-banner');
+    // 4. הזרקת ה-HTML לתוך הקונטיינר
+    adContainer.innerHTML = bannerHtml;
 
-    // טיימר של 8 שניות עד שניתן לסגור
-    let timeLeft = 8;
+    // 5. לוגיקת סגירה (זמנית בלבד - ללא localStorage)
+    const closeBtn = document.getElementById('gl-close-btn');
+    const banner = document.getElementById('gl-banner');
+
+    let timeLeft = 7; // שניות עד שניתן לסגור
     const timer = setInterval(() => {
-        timeLeft--;
-        if (timeLeft <= 0) {
-            clearInterval(timer);
-            closeBtn.classList.remove('gl-disabled');
-            closeBtn.title = "סגור";
-            closeBtn.addEventListener('click', () => {
-                banner.style.display = 'none';
-            });
-        }
+      timeLeft--;
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        closeBtn.classList.remove('gl-disabled');
+        closeBtn.title = "סגור";
+        closeBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          banner.style.display = 'none'; // הסרה זמנית עד הרענון
+        });
+      }
     }, 1000);
   }
 
+  // הפעלה
   if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-      init();
+    init();
   }
 })();
