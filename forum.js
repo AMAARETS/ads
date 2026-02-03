@@ -159,7 +159,7 @@
             <span class="gl-main-title">פורום גוד-לינק</span>
             <span class="gl-sub-title">פורום הקניות החדש</span>
           </div>
-          <button class="gl-btn-forum">כניסה לפורום</button>
+          <button class="gl-btn-forum">כנסו עכשיו לפורום</button>
         </div>
 
         <!-- אמצע: טקסט רץ -->
